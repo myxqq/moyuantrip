@@ -352,6 +352,14 @@ tr:hover { background: #f9fbfd; }
         </div>
       </div>
     </div>
+    <div class="card" style="margin-top:20px;border:2px solid var(--sky);">
+      <div class="card-header"><h3>🌐 发布线路到首页</h3></div>
+      <div class="card-body">
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">将当前线路数据导出为 tours.json，上传到 GitHub 后首页即可更新</p>
+        <button class="btn btn-primary" onclick="exportToursJson()">📤 导出 tours.json</button>
+        <p style="font-size:12px;color:#999;margin-top:8px;">导出后将文件发给管理员上传到 GitHub</p>
+      </div>
+    </div>
     <div class="card" style="margin-top:20px;">
       <div class="card-header"><h3>⚠️ 危险操作</h3></div>
       <div class="card-body">
@@ -1361,6 +1369,20 @@ function removeTourFromCategory(catId, tourId) {
 }
 
 // ── Data Export/Import ──
+// ── 导出 tours.json 给首页使用 ──
+function exportToursJson() {
+  const t = JSON.parse(localStorage.getItem('moyuanTours') || 'null') || defaultTours;
+  const json = JSON.stringify(t, null, 2);
+  const blob = new Blob([json], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'tours.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('tours.json 已下载，发送给管理员上传到 GitHub');
+}
+
 function exportData() {
   const data = {
     tours: loadTours(),

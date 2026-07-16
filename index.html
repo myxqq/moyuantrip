@@ -1150,6 +1150,18 @@ if(!tours || Object.keys(tours).length === 0) {
   tours = JSON.parse(JSON.stringify(defaultTours));
 }
 
+// 从GitHub拉取最新线路数据（覆盖本地）
+fetch('https://raw.githubusercontent.com/myxqq/moyuantrip/main/tours.json')
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if(data && Object.keys(data).length > 0) {
+      tours = data;
+      localStorage.setItem('moyuanTours', JSON.stringify(tours));
+      renderTourCards();
+    }
+  })
+  .catch(function() {});
+
 // ── 动态渲染线路卡片 ──
 function renderTourCards() {
   const container = document.getElementById('tours-container');
