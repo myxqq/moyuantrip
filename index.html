@@ -1443,6 +1443,11 @@ function submitBooking() {
   document.getElementById('s-success-total').textContent = '¥' + total.toLocaleString();
 
   showPage('success');
+
+  // 跳转到腾讯文档收集表
+  setTimeout(function() {
+    window.open('https://docs.qq.com/form/page/DTlJZRnl0Sm9MVmtM', '_blank');
+  }, 500);
 }
 
 // ── City Selector ──
