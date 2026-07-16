@@ -1,0 +1,1721 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>默元旅游 · 银发慢游</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sky: #1a9fd4;
+    --sky-deep: #0d7aaa;
+    --green: #3ab26e;
+    --green-deep: #2a8e57;
+    --gold: #f0b429;
+    --gold-light: #fdd97b;
+    --red: #e8432d;
+    --bg: #f5f0eb;
+    --card: #ffffff;
+    --text: #1a1a2e;
+    --text-muted: #666;
+    --radius: 16px;
+    --shadow: 0 4px 24px rgba(0,0,0,0.10);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Noto Sans SC', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    max-width: 430px;
+    margin: 0 auto;
+    overflow-x: hidden;
+  }
+
+  /* ── Nav Bar ── */
+  .nav-bar {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(12px);
+    padding: 14px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  }
+  .nav-logo {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 20px; font-weight: 900;
+    background: linear-gradient(135deg, var(--sky), var(--sky-deep));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    letter-spacing: 1px;
+  }
+  .nav-logo span { color: var(--gold); -webkit-text-fill-color: var(--gold); }
+  .nav-subtitle { font-size: 13px; color: var(--text-muted); }
+
+  /* ── City Selector ── */
+  .city-selector {
+    display: flex; flex-direction: column; align-items: flex-end; gap: 4px;
+    cursor: pointer; position: relative;
+  }
+  .city-btn {
+    display: flex; align-items: center; gap: 4px;
+    background: linear-gradient(135deg, #e8f6fc, #cceeff);
+    border: 1.5px solid rgba(26,159,212,0.25);
+    border-radius: 20px; padding: 5px 10px;
+    font-size: 14px; font-weight: 600; color: var(--sky-deep);
+    cursor: pointer; transition: background 0.15s;
+    white-space: nowrap;
+  }
+  .city-btn:active { background: #b8e4f5; }
+  .city-arrow { font-size: 11px; transition: transform 0.2s; }
+  .city-arrow.open { transform: rotate(180deg); }
+
+  .city-dropdown {
+    display: none;
+    position: absolute; top: calc(100% + 8px); right: 0;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    overflow: hidden; min-width: 160px; z-index: 999;
+    border: 1px solid #eee;
+  }
+  .city-dropdown.open { display: block; animation: dropDown 0.2s ease; }
+  @keyframes dropDown {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .city-option {
+    display: flex; align-items: center; gap: 8px;
+    padding: 11px 14px; font-size: 15px; cursor: pointer;
+    border-bottom: 1px solid #f5f5f5; transition: background 0.1s;
+  }
+  .city-option:last-child { border-bottom: none; }
+  .city-option:active { background: #f0f8ff; }
+  .city-option.selected { color: var(--sky); font-weight: 700; }
+  .city-option .city-check { margin-left: auto; font-size: 16px; }
+
+  /* ── Page System ── */
+  .page { display: none; animation: fadeUp 0.35s ease; }
+  .page.active { display: block; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Hero Banner ── */
+  .hero {
+    background: linear-gradient(160deg, #0d7aaa 0%, #1a9fd4 50%, #2ec4a0 100%);
+    padding: 28px 20px 36px;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; top: -30px; right: -40px;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+  }
+  .hero::after {
+    content: '';
+    position: absolute; bottom: -50px; left: -20px;
+    width: 160px; height: 160px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.05);
+  }
+  .hero-tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.35);
+    color: #fff; font-size: 13px;
+    padding: 4px 12px; border-radius: 20px;
+    margin-bottom: 12px; letter-spacing: 1px;
+  }
+  .hero h1 {
+    font-family: 'Noto Serif SC', serif;
+    color: #fff; font-size: 32px; font-weight: 900;
+    line-height: 1.2; margin-bottom: 6px;
+  }
+  .hero h1 em { color: var(--gold-light); font-style: normal; }
+  .hero p { color: rgba(255,255,255,0.85); font-size: 15px; line-height: 1.6; }
+  .hero-stats {
+    display: flex; gap: 10px; margin-top: 20px;
+  }
+  .hero-stat {
+    flex: 1;
+    background: rgba(255,255,255,0.15);
+    border-radius: 12px; padding: 10px 8px; text-align: center;
+  }
+  .hero-stat .num { color: #fff; font-size: 24px; font-weight: 700; font-family: 'Noto Serif SC', serif; }
+  .hero-stat .lab { color: rgba(255,255,255,0.75); font-size: 13px; margin-top: 2px; }
+
+  /* ── Section ── */
+  .section { padding: 0 16px 20px; }
+  .section-title {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 18px; font-weight: 700;
+    color: var(--text);
+    margin: 22px 0 12px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-title::before {
+    content: '';
+    display: inline-block;
+    width: 4px; height: 18px; border-radius: 2px;
+    background: linear-gradient(180deg, var(--sky), var(--sky-deep));
+  }
+
+  /* ── Tour Cards ── */
+  .tour-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    margin-bottom: 16px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1.5px solid transparent;
+  }
+  .tour-card:active { transform: scale(0.98); }
+  .tour-card.sky-theme { border-color: rgba(26,159,212,0.15); }
+  .tour-card.green-theme { border-color: rgba(58,178,110,0.15); }
+
+  .card-header {
+    padding: 16px 16px 12px;
+    display: flex; align-items: flex-start; gap: 12px;
+  }
+  .card-icon {
+    width: 48px; height: 48px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; flex-shrink: 0;
+  }
+  .sky-theme .card-icon { background: linear-gradient(135deg, #e8f6fc, #b8e4f5); }
+  .green-theme .card-icon { background: linear-gradient(135deg, #e6f7ed, #b8e8cc); }
+
+  .card-info { flex: 1; min-width: 0; }
+  .card-title {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 19px; font-weight: 700;
+    color: var(--text); margin-bottom: 4px;
+  }
+  .card-sub { font-size: 14px; color: var(--text-muted); line-height: 1.5; }
+
+  .card-badges {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    padding: 0 16px 12px;
+  }
+
+  /* ── Card Image Carousel ── */
+  .card-carousel {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    display: flex;
+    gap: 0;
+    scrollbar-width: none;
+  }
+  .card-carousel::-webkit-scrollbar { display: none; }
+  .carousel-item {
+    flex-shrink: 0;
+    width: 100%;
+    scroll-snap-align: start;
+    aspect-ratio: 16/9;
+    border-radius: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .carousel-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .carousel-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    color: rgba(255,255,255,0.7);
+  }
+  .carousel-dots {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    padding: 8px 0 4px;
+  }
+  .carousel-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: #ddd;
+    transition: background 0.2s;
+  }
+  .carousel-dot.active { background: var(--sky); width: 14px; border-radius: 3px; }
+
+  .badge {
+    font-size: 13px; padding: 4px 10px; border-radius: 20px; font-weight: 500;
+  }
+  .sky-theme .badge { background: #e8f6fc; color: var(--sky-deep); }
+  .green-theme .badge { background: #e6f7ed; color: var(--green-deep); }
+
+  .card-itinerary {
+    border-top: 1px solid #f0f0f0;
+    padding: 12px 16px;
+  }
+  .itinerary-row {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 5px 0; font-size: 14px;
+  }
+  .day-tag {
+    flex-shrink: 0;
+    font-size: 13px; font-weight: 600;
+    padding: 2px 8px; border-radius: 6px;
+    min-width: 42px; text-align: center;
+  }
+  .sky-theme .day-tag { background: var(--sky); color: #fff; }
+  .green-theme .day-tag { background: var(--green); color: #fff; }
+  .itinerary-text { color: var(--text-muted); line-height: 1.5; }
+
+  .card-footer {
+    padding: 12px 16px;
+    background: #fafafa;
+    display: flex; align-items: center; justify-content: space-between;
+    border-top: 1px solid #f0f0f0;
+  }
+  .price-info { display: flex; align-items: baseline; gap: 4px; }
+  .price-from { font-size: 13px; color: var(--text-muted); }
+  .price-num {
+    font-size: 24px; font-weight: 700;
+    font-family: 'Noto Serif SC', serif;
+    color: var(--red);
+  }
+  .price-unit { font-size: 14px; color: var(--text-muted); }
+  .btn-book {
+    padding: 10px 22px; border-radius: 24px; border: none;
+    font-size: 13px; font-weight: 600; cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    color: #fff;
+    letter-spacing: 0.5px;
+  }
+  .btn-book:active { transform: scale(0.96); }
+  .sky-theme .btn-book { background: linear-gradient(135deg, var(--sky), var(--sky-deep)); }
+  .green-theme .btn-book { background: linear-gradient(135deg, var(--green), var(--green-deep)); }
+
+  /* ── Promises ── */
+  .promises-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .promise-card {
+    background: var(--card);
+    border-radius: 12px; padding: 14px 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    display: flex; align-items: flex-start; gap: 10px;
+  }
+  .promise-icon { font-size: 22px; flex-shrink: 0; }
+  .promise-title { font-size: 15px; font-weight: 600; margin-bottom: 3px; }
+  .promise-desc { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+
+  /* ── Contact Strip ── */
+  .contact-strip {
+    background: linear-gradient(135deg, var(--sky-deep), #0a5a80);
+    margin: 0 16px; border-radius: var(--radius);
+    padding: 18px; display: flex; gap: 14px;
+    align-items: center; margin-bottom: 20px;
+  }
+  .contact-icon { font-size: 30px; }
+  .contact-text { flex: 1; }
+  .contact-text h3 { color: #fff; font-size: 15px; font-weight: 700; margin-bottom: 3px; }
+  .contact-text p { color: rgba(255,255,255,0.75); font-size: 14px; }
+  .contact-num {
+    font-size: 16px; font-weight: 700;
+    color: var(--gold-light);
+    font-family: 'Noto Serif SC', serif;
+  }
+
+  /* ── Detail Page ── */
+  .detail-hero {
+    padding: 0;
+    position: relative;
+  }
+  .detail-hero-bg {
+    height: 200px;
+    display: flex; align-items: flex-end;
+    padding: 20px;
+    position: relative; overflow: hidden;
+  }
+  .sky-bg { background: linear-gradient(160deg, #0d7aaa, #1a9fd4, #3ecfd0); }
+  .green-bg { background: linear-gradient(160deg, #1e7a4a, #3ab26e, #8ed17a); }
+  .warm-bg { background: linear-gradient(160deg, #6b3f24, #8b5a3c, #c4845a); }
+  .sky-dot { background: var(--sky); }
+  .green-dot { background: var(--green); }
+  .warm-dot { background: #8b5a3c; }
+  .detail-hero-bg::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.6), rgba(0,0,0,0.2) 60%, rgba(0,0,0,0.1));
+  }
+  .detail-hero-content { position: relative; z-index: 1; }
+  .detail-hero-content h2 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 28px; font-weight: 900; color: #fff;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    margin-bottom: 4px;
+  }
+  .detail-hero-content p { color: rgba(255,255,255,0.85); font-size: 15px; }
+
+  .back-btn {
+    position: absolute; top: 60px; left: 16px; z-index: 10;
+    width: 36px; height: 36px; border-radius: 50%;
+    background: rgba(255,255,255,0.9);
+    border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+    transition: background 0.15s;
+  }
+  .back-btn:active { background: rgba(255,255,255,0.7); }
+
+  /* Tabs */
+  .tabs {
+    display: flex; background: var(--card);
+    border-bottom: 1px solid #eee; padding: 0 16px;
+    position: sticky; top: 60px; z-index: 50;
+  }
+  .tab {
+    flex: 1; padding: 12px 0; text-align: center;
+    font-size: 15px; font-weight: 500; color: var(--text-muted);
+    cursor: pointer; border-bottom: 2px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .tab.active { color: var(--sky); border-color: var(--sky); font-weight: 700; }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* Day Timeline */
+  .timeline { padding: 8px 16px 20px; }
+  .timeline-item { display: flex; gap: 14px; margin-bottom: 0; }
+  .timeline-left {
+    display: flex; flex-direction: column; align-items: center;
+    flex-shrink: 0; width: 40px;
+  }
+  .timeline-dot {
+    width: 32px; height: 32px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700; color: #fff; flex-shrink: 0;
+  }
+  .timeline-line { flex: 1; width: 2px; background: #e8e8e8; margin: 4px 0; min-height: 30px; }
+  .timeline-right { flex: 1; padding-bottom: 20px; }
+  .timeline-day { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; }
+  .timeline-title {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 17px; font-weight: 700; margin-bottom: 6px;
+    color: var(--text);
+  }
+  .timeline-desc { font-size: 14px; color: var(--text-muted); line-height: 1.7; }
+  .timeline-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+  .timeline-tag {
+    font-size: 13px; padding: 3px 9px; border-radius: 6px;
+    background: #f0f0f0; color: var(--text-muted);
+  }
+
+  /* Includes */
+  .includes-list { padding: 0 16px 20px; }
+  .include-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 10px 0; border-bottom: 1px solid #f5f5f5;
+    font-size: 15px;
+  }
+  .include-item:last-child { border-bottom: none; }
+  .include-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .include-text h4 { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
+  .include-text p { font-size: 14px; color: var(--text-muted); line-height: 1.5; }
+
+  /* ── Booking Form Page ── */
+  .booking-header {
+    padding: 20px 16px 12px;
+    background: linear-gradient(135deg, #0d7aaa, #1a9fd4);
+  }
+  .booking-header h2 {
+    color: #fff; font-family: 'Noto Serif SC', serif;
+    font-size: 22px; font-weight: 900; margin-bottom: 4px;
+  }
+  .booking-header p { color: rgba(255,255,255,0.8); font-size: 14px; }
+
+  .form-section {
+    background: var(--card);
+    margin: 12px 16px; border-radius: var(--radius);
+    padding: 16px; box-shadow: var(--shadow);
+  }
+  .form-section-title {
+    font-size: 16px; font-weight: 700; margin-bottom: 14px;
+    color: var(--text);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .form-row { margin-bottom: 14px; }
+  .form-label { font-size: 14px; color: var(--text-muted); margin-bottom: 6px; display: block; }
+  .form-input {
+    width: 100%; padding: 11px 14px;
+    border: 1.5px solid #e5e5e5; border-radius: 10px;
+    font-size: 16px; font-family: 'Noto Sans SC', sans-serif;
+    color: var(--text); background: #fafafa;
+    transition: border-color 0.2s, background 0.2s; outline: none;
+    -webkit-appearance: none;
+  }
+  .form-input:focus { border-color: var(--sky); background: #fff; }
+  select.form-input { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+
+  .people-row { display: flex; align-items: center; justify-content: space-between; }
+  .people-label { font-size: 15px; color: var(--text); }
+  .people-ctrl { display: flex; align-items: center; gap: 10px; }
+  .ppl-btn {
+    width: 32px; height: 32px; border-radius: 50%;
+    border: 1.5px solid var(--sky); background: transparent;
+    color: var(--sky); font-size: 20px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s, color 0.15s;
+  }
+  .ppl-btn:active { background: var(--sky); color: #fff; }
+  .ppl-num { font-size: 20px; font-weight: 700; min-width: 28px; text-align: center; }
+
+  .order-summary {
+    background: #fff7e6;
+    border: 1.5px solid #fdd97b;
+    margin: 0 16px 12px; border-radius: var(--radius);
+    padding: 16px;
+  }
+  .summary-title { font-size: 15px; font-weight: 700; margin-bottom: 10px; color: var(--text); }
+  .summary-row { display: flex; justify-content: space-between; font-size: 15px; padding: 4px 0; }
+  .summary-row span:first-child { color: var(--text-muted); }
+  .summary-row span:last-child { font-weight: 600; }
+  .summary-total {
+    display: flex; justify-content: space-between;
+    border-top: 1px dashed #fdd97b; margin-top: 8px; padding-top: 10px;
+  }
+  .summary-total span:first-child { font-size: 16px; font-weight: 700; }
+  .summary-total span:last-child { font-size: 24px; font-weight: 700; color: var(--red); font-family: 'Noto Serif SC', serif; }
+
+  .btn-submit {
+    display: block; width: calc(100% - 32px); margin: 0 16px 24px;
+    padding: 16px; border: none; border-radius: var(--radius);
+    background: linear-gradient(135deg, var(--sky), var(--sky-deep));
+    color: #fff; font-size: 18px; font-weight: 700;
+    font-family: 'Noto Sans SC', sans-serif;
+    cursor: pointer; letter-spacing: 1px;
+    box-shadow: 0 6px 20px rgba(26,159,212,0.35);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .btn-submit:active { transform: scale(0.98); box-shadow: 0 2px 10px rgba(26,159,212,0.2); }
+
+  /* ── Success ── */
+  .success-page {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; min-height: 60vh;
+    padding: 40px 24px; text-align: center;
+  }
+  .success-icon {
+    width: 80px; height: 80px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--green), var(--green-deep));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 40px; margin-bottom: 20px;
+    box-shadow: 0 8px 24px rgba(58,178,110,0.35);
+    animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  @keyframes popIn {
+    from { transform: scale(0); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  .success-title {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 24px; font-weight: 900; margin-bottom: 8px; color: var(--text);
+  }
+  .success-desc { font-size: 15px; color: var(--text-muted); line-height: 1.7; margin-bottom: 24px; }
+  .order-card {
+    background: var(--card); border-radius: var(--radius);
+    padding: 18px; width: 100%; box-shadow: var(--shadow);
+    margin-bottom: 20px; text-align: left;
+  }
+  .order-id { font-size: 13px; color: var(--text-muted); margin-bottom: 10px; }
+  .order-id span { font-weight: 700; color: var(--sky); }
+  .order-row { display: flex; justify-content: space-between; font-size: 13px; padding: 5px 0; border-bottom: 1px solid #f5f5f5; }
+  .order-row:last-child { border-bottom: none; }
+  .order-row span:first-child { color: var(--text-muted); }
+  .order-row span:last-child { font-weight: 600; }
+  .btn-home {
+    padding: 14px 40px; border-radius: 24px; border: none;
+    background: linear-gradient(135deg, var(--sky), var(--sky-deep));
+    color: #fff; font-size: 17px; font-weight: 700;
+    cursor: pointer; letter-spacing: 0.5px;
+  }
+
+  /* ── Bottom Tab Bar ── */
+  .bottom-bar {
+    position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: 430px;
+    background: rgba(255,255,255,0.96);
+    backdrop-filter: blur(12px);
+    display: flex; border-top: 1px solid #eee;
+    padding-bottom: env(safe-area-inset-bottom);
+    z-index: 200;
+  }
+  .bottom-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    padding: 8px 0; cursor: pointer;
+    transition: color 0.15s;
+    color: var(--text-muted); font-size: 12px; gap: 2px;
+  }
+  .bottom-item.active { color: var(--sky); }
+  .bottom-item .bi { font-size: 24px; }
+
+  .pb { padding-bottom: 80px; }
+
+  /* ── Floating phone ── */
+  /* ── Orders Page ── */
+  .orders-header {
+    padding: 20px 16px 16px;
+    background: linear-gradient(135deg, #0d7aaa, #1a9fd4);
+  }
+  .orders-header h2 {
+    color: #fff; font-family: 'Noto Serif SC', serif;
+    font-size: 22px; font-weight: 900;
+  }
+  .orders-empty {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; padding: 60px 24px; text-align: center;
+  }
+  .orders-empty-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.4; }
+  .orders-empty-text { font-size: 16px; color: var(--text-muted); }
+  .order-list { padding: 12px 16px; }
+  .order-card-item {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    margin-bottom: 14px;
+    overflow: hidden;
+    border: 1.5px solid #eee;
+  }
+  .order-card-header {
+    padding: 14px 16px 10px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid #f5f5f5;
+  }
+  .order-card-id { font-size: 13px; color: var(--text-muted); }
+  .order-card-id span { font-weight: 700; color: var(--sky); }
+  .order-status {
+    font-size: 13px; font-weight: 600; padding: 3px 10px; border-radius: 20px;
+  }
+  .status-confirmed { background: #e6f7ed; color: #2a8e57; }
+  .status-pending { background: #fff7e6; color: #d48806; }
+  .status-cancelled { background: #f5f5f5; color: #999; }
+  .order-card-body { padding: 12px 16px; }
+  .order-card-row {
+    display: flex; justify-content: space-between; font-size: 15px; padding: 4px 0;
+  }
+  .order-card-row span:first-child { color: var(--text-muted); }
+  .order-card-row span:last-child { font-weight: 600; }
+  .order-card-footer {
+    padding: 10px 16px 14px;
+    display: flex; gap: 10px; justify-content: flex-end;
+  }
+  .order-btn {
+    padding: 8px 18px; border-radius: 20px; border: none;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: transform 0.15s;
+  }
+  .order-btn:active { transform: scale(0.95); }
+  .order-btn-cancel { background: #f5f5f5; color: #999; }
+  .order-btn-modify { background: var(--sky); color: #fff; }
+  .order-btn-modify:active { background: var(--sky-deep); }
+
+  /* Modify Modal */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; z-index: 300;
+    background: rgba(0,0,0,0.5);
+    align-items: flex-end; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; animation: fadeIn 0.2s ease; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .modal-content {
+    background: #fff; border-radius: 20px 20px 0 0;
+    width: 100%; max-width: 430px;
+    padding: 20px 16px 30px;
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+  .modal-title {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 19px; font-weight: 700; margin-bottom: 16px; text-align: center;
+  }
+  .modal-close {
+    position: absolute; top: 16px; right: 16px;
+    width: 30px; height: 30px; border-radius: 50%;
+    border: none; background: #f5f5f5; cursor: pointer;
+    font-size: 16px; display: flex; align-items: center; justify-content: center;
+  }
+  .modal-btn-group { display: flex; gap: 10px; margin-top: 16px; }
+  .modal-btn-group button {
+    flex: 1; padding: 14px; border: none; border-radius: 12px;
+    font-size: 16px; font-weight: 700; cursor: pointer;
+  }
+  .modal-btn-cancel { background: #f5f5f5; color: #666; }
+  .modal-btn-confirm { background: var(--sky); color: #fff; }
+
+  .float-phone {
+    position: fixed; bottom: 90px; right: 16px; z-index: 150;
+    width: 50px; height: 50px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--gold), #e8a800);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; box-shadow: 0 4px 16px rgba(240,180,41,0.5);
+    cursor: pointer; animation: pulse 2.5s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 4px 16px rgba(240,180,41,0.5); }
+    50% { box-shadow: 0 4px 28px rgba(240,180,41,0.8); }
+  }
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<div class="nav-bar">
+  <div>
+    <div class="nav-logo">默元<span>旅游</span></div>
+    <div class="nav-subtitle">专属银发 · 健康慢游</div>
+  </div>
+  <div class="city-selector" onclick="toggleCityDropdown(event)">
+    <div class="city-btn">
+      📍 <span id="nav-city">常州金坛</span>
+      <span class="city-arrow" id="city-arrow">▼</span>
+    </div>
+    <div style="font-size:12px;color:var(--text-muted);">点击切换出发地</div>
+    <div class="city-dropdown" id="city-dropdown">
+      <div class="city-option selected" onclick="selectCity(event,'常州金坛','金坛高铁站')">
+        🚉 常州金坛 <span class="city-check">✓</span>
+      </div>
+      <div class="city-option" onclick="selectCity(event,'常州市区','常州高铁站')">
+        🚉 常州市区
+      </div>
+      <div class="city-option" onclick="selectCity(event,'无锡','无锡东站')">
+        🚉 无锡
+      </div>
+      <div class="city-option" onclick="selectCity(event,'南京','南京南站')">
+        🚉 南京
+      </div>
+      <div class="city-option" onclick="selectCity(event,'苏州','苏州高铁北站')">
+        🚉 苏州
+      </div>
+      <div class="city-option" onclick="selectCity(event,'北京','北京南站')">
+        🚉 北京
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ HOME PAGE ═══════════════ -->
+<div id="page-home" class="page active pb">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-tag">🌸 多线路可选 · <span id="hero-city">常州金坛</span>出发 · 报名从速</div>
+    <h1>专属<em>银发</em><br>慢游之旅</h1>
+    <p>慢下来，才能看见最地道的风景。<br>健康管家全程随行，让您安心出游。</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="num">2</div><div class="lab">精选路线</div></div>
+      <div class="hero-stat"><div class="num">1天起</div><div class="lab">行程</div></div>
+      <div class="hero-stat"><div class="num">0</div><div class="lab">购物强制</div></div>
+      <div class="hero-stat"><div class="num">24h</div><div class="lab">健康随行</div></div>
+    </div>
+  </div>
+
+  <!-- Tours (动态渲染) -->
+  <div id="tours-container"></div>
+  <div class="section">
+    <div class="section-title">四大安心承诺</div>
+    <div class="promises-grid">
+      <div class="promise-card">
+        <div class="promise-icon">🩺</div>
+        <div><div class="promise-title">健康随行</div><div class="promise-desc">专属健康管家每日同行，健康监测，旅途更安心。</div></div>
+      </div>
+      <div class="promise-card">
+        <div class="promise-icon">🐌</div>
+        <div><div class="promise-title">慢游专属</div><div class="promise-desc">每天2个精华点，节奏舒缓，中午可回酒店午休。</div></div>
+      </div>
+      <div class="promise-card">
+        <div class="promise-icon">🛍️</div>
+        <div><div class="promise-title">纯玩0购物</div><div class="promise-desc">全程无购物店、无强制消费，纯粹游览风景。</div></div>
+      </div>
+      <div class="promise-card">
+        <div class="promise-icon">📸</div>
+        <div><div class="promise-title">记忆留存</div><div class="promise-desc">管家随行跟拍，为您记录旅途中的温馨故事与笑脸。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contact -->
+  <div class="contact-strip">
+    <div class="contact-icon">📞</div>
+    <div class="contact-text">
+      <h3>报名专线</h3>
+      <p id="contact-city-text">📍 常州市金坛区南洲里颐养中心</p>
+      <div class="contact-num">18961225552</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════ DETAIL PAGE ═══════════════ -->
+<div id="page-detail" class="page pb">
+  <button class="back-btn" onclick="showPage('home')">←</button>
+
+  <div class="detail-hero">
+    <div id="detail-hero-bg" class="detail-hero-bg sky-bg">
+      <div class="detail-hero-content">
+        <h2 id="detail-title">畅游京城 · 银发之旅</h2>
+        <p id="detail-sub">5天4晚 | 高铁往返 | 全程膳食</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab(this,'tab-itinerary')">行程</div>
+    <div class="tab" onclick="switchTab(this,'tab-includes')">费用说明</div>
+    <div class="tab" onclick="switchTab(this,'tab-tips')">注意事项</div>
+  </div>
+
+  <!-- Itinerary Tab -->
+  <div id="tab-itinerary" class="tab-content active">
+    <div class="timeline" id="detail-timeline"></div>
+  </div>
+
+  <!-- Includes Tab -->
+  <div id="tab-includes" class="tab-content">
+    <div class="includes-list" id="detail-includes"></div>
+  </div>
+
+  <!-- Tips Tab -->
+  <div id="tab-tips" class="tab-content">
+    <div class="includes-list" id="detail-tips"></div>
+  </div>
+
+  <!-- Book Button -->
+  <div style="padding:0 16px 24px;">
+    <button class="btn-submit" id="detail-book-btn" onclick="openBookingFromDetail()">立即预订 · 抢占名额</button>
+  </div>
+</div>
+
+<!-- ═══════════════ BOOKING PAGE ═══════════════ -->
+<div id="page-booking" class="page">
+  <div class="booking-header" id="booking-header">
+    <h2 id="booking-title">预订 · 畅游京城</h2>
+    <p id="booking-sub">5天4晚 | 出发日期：2026年3月</p>
+  </div>
+
+  <div class="form-section">
+    <div class="form-section-title">👤 出行人信息</div>
+    <div class="form-row">
+      <label class="form-label">联系人姓名</label>
+      <input id="f-name" class="form-input" type="text" placeholder="请输入姓名">
+    </div>
+    <div class="form-row">
+      <label class="form-label">手机号码</label>
+      <input id="f-phone" class="form-input" type="tel" placeholder="请输入手机号">
+    </div>
+    <div class="form-row">
+      <label class="form-label">出发日期</label>
+      <select id="f-date" class="form-input">
+        <option value="">请选择出发日期</option>
+        <option>2026年3月1日</option>
+        <option>2026年3月8日</option>
+        <option>2026年3月15日</option>
+        <option>2026年3月22日</option>
+        <option>2026年4月5日</option>
+        <option>2026年4月12日</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <div class="people-row">
+        <div>
+          <div class="form-label">出行人数</div>
+          <div style="font-size:13px;color:#aaa;" id="s-unit-price">每位¥3980起</div>
+        </div>
+        <div class="people-ctrl">
+          <button class="ppl-btn" onclick="changePeople(-1)">−</button>
+          <div class="ppl-num" id="people-count">1</div>
+          <button class="ppl-btn" onclick="changePeople(1)">+</button>
+        </div>
+      </div>
+    </div>
+    <div class="form-row">
+      <label class="form-label">特殊需求（可选）</label>
+      <input id="f-note" class="form-input" type="text" placeholder="如：轮椅、特殊饮食等">
+    </div>
+  </div>
+
+  <div class="order-summary">
+    <div class="summary-title">📋 费用明细</div>
+    <div class="summary-row"><span id="s-tour">畅游京城 5天4晚</span><span></span></div>
+    <div class="summary-row"><span>出行人数</span><span id="s-people">1人</span></div>
+    <div class="summary-row"><span>单价</span><span id="s-price">¥3,980/人</span></div>
+    <div class="summary-row"><span>保险</span><span>已含</span></div>
+    <div class="summary-total">
+      <span>合计</span>
+      <span id="s-total">¥3,980</span>
+    </div>
+  </div>
+
+  <button class="btn-submit" onclick="submitBooking()">确认预订</button>
+  <div style="text-align:center;font-size:13px;color:#aaa;padding-bottom:80px;">预订后工作人员将在24小时内电话确认</div>
+</div>
+
+<!-- ═══════════════ SUCCESS PAGE ═══════════════ -->
+<div id="page-success" class="page">
+  <div class="success-page">
+    <div class="success-icon">✓</div>
+    <div class="success-title">预订成功！</div>
+    <div class="success-desc">您的出行申请已提交，<br>工作人员将在24小时内致电确认。<br>如有疑问请拨打：<strong>18961225552</strong></div>
+    <div class="order-card">
+      <div class="order-id">订单编号：<span id="order-id-display">KC20260001</span></div>
+      <div class="order-row"><span>行程</span><span id="s-success-tour">默元旅游</span></div>
+      <div class="order-row"><span>出发日期</span><span id="s-success-date">—</span></div>
+      <div class="order-row"><span>出行人数</span><span id="s-success-people">1人</span></div>
+      <div class="order-row"><span>联系人</span><span id="s-success-name">—</span></div>
+      <div class="order-row"><span>联系电话</span><span id="s-success-phone">—</span></div>
+      <div class="order-row"><span>合计金额</span><span id="s-success-total" style="color:var(--red)">¥3,980</span></div>
+    </div>
+    <button class="btn-home" onclick="showPage('home')">返回首页</button>
+  </div>
+</div>
+
+<!-- ═══════════════ ORDERS PAGE ═══════════════ -->
+<div id="page-orders" class="page pb">
+  <div class="orders-header">
+    <h2>📋 我的订单</h2>
+  </div>
+  <div id="orders-list-container"></div>
+</div>
+
+<!-- ═══════════════ MODIFY MODAL ═══════════════ -->
+<div class="modal-overlay" id="modify-modal">
+  <div class="modal-content" style="position:relative;">
+    <div class="modal-title">修改订单</div>
+    <div class="form-row">
+      <label class="form-label">出发日期</label>
+      <select id="m-date" class="form-input">
+        <option value="">请选择出发日期</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <div class="people-row">
+        <div>
+          <div class="form-label">出行人数</div>
+        </div>
+        <div class="people-ctrl">
+          <button class="ppl-btn" onclick="changeModifyPeople(-1)">−</button>
+          <div class="ppl-num" id="modify-people-count">1</div>
+          <button class="ppl-btn" onclick="changeModifyPeople(1)">+</button>
+        </div>
+      </div>
+    </div>
+    <div class="form-row">
+      <label class="form-label">特殊需求（可选）</label>
+      <input id="m-note" class="form-input" type="text" placeholder="如：轮椅、特殊饮食等">
+    </div>
+    <div class="modal-btn-group">
+      <button class="modal-btn-cancel" onclick="closeModifyModal()">取消</button>
+      <button class="modal-btn-confirm" onclick="confirmModify()">确认修改</button>
+    </div>
+  </div>
+</div>
+    <button class="btn-home" onclick="showPage('home')">返回首页</button>
+  </div>
+</div>
+
+<!-- Bottom Bar -->
+<div class="bottom-bar">
+  <div class="bottom-item active" onclick="showPage('home')" id="bar-home">
+    <span class="bi">🏠</span><span>首页</span>
+  </div>
+  <div class="bottom-item" onclick="showPage('home')" id="bar-tours">
+    <span class="bi">🗺️</span><span>路线</span>
+  </div>
+  <div class="bottom-item" id="bar-orders" onclick="showPage('orders');renderOrders();">
+    <span class="bi">📋</span><span>我的订单</span>
+  </div>
+  <div class="bottom-item" id="bar-contact" onclick="showContact()">
+    <span class="bi">📞</span><span>联系我们</span>
+  </div>
+</div>
+
+<!-- Contact Modal -->
+<div id="contact-modal" class="modal-overlay" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal-content" style="border-radius:20px;overflow:hidden;">
+    <div style="background:linear-gradient(135deg,#0d7aaa,#1a9fd4);padding:24px 20px;text-align:center;color:#fff;">
+      <div style="font-size:40px;margin-bottom:8px;">📞</div>
+      <div style="font-size:18px;font-weight:700;">联系我们</div>
+    </div>
+    <div style="padding:20px;">
+      <a id="contact-phone-link" href="tel:18961225552" style="display:flex;align-items:center;gap:12px;padding:14px;background:#f0f8ff;border-radius:12px;text-decoration:none;color:#0d7aaa;margin-bottom:12px;">
+        <span style="font-size:28px;">📱</span>
+        <div>
+          <div style="font-size:14px;color:#999;">客服热线</div>
+          <div id="contact-phone-text" style="font-size:22px;font-weight:700;letter-spacing:1px;">18961225552</div>
+        </div>
+      </a>
+      <div style="display:flex;align-items:center;gap:12px;padding:14px;background:#f8f8f8;border-radius:12px;">
+        <span style="font-size:28px;">📍</span>
+        <div>
+          <div style="font-size:14px;color:#999;">地址</div>
+          <div id="contact-address-text" style="font-size:16px;font-weight:600;color:#333;">常州市金坛区南洲里颐养中心</div>
+        </div>
+      </div>
+    </div>
+    <div style="padding:0 20px 20px;text-align:center;">
+      <button onclick="document.getElementById('contact-modal').classList.remove('open')" style="width:100%;padding:12px;border:none;border-radius:10px;background:#f0f0f0;color:#666;font-size:15px;font-weight:600;cursor:pointer;">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- Floating Phone -->
+<div class="float-phone" onclick="showContact()">📞</div>
+
+<!-- 重置数据按钮（长按3秒清除缓存） -->
+
+<script>
+// 从 localStorage 读取数据，如果没有则用默认数据
+const defaultTours = {
+  beijing: {
+    title: '畅游京城 · 银发之旅',
+    sub: '5天4晚 | 高铁往返 | 全程膳食',
+    theme: 'sky',
+    price: 3980,
+    priceLabel: '¥3,980/人',
+    dates: ['2026年3月1日','2026年3月8日','2026年3月15日','2026年3月22日','2026年7月4日','2026年7月11日','2026年7月18日','2026年7月25日','2026年8月1日','2026年8月8日','2026年8月15日','2026年8月22日'],
+    badges: ['高铁往返','四星酒店','全程膳食','3月/4月出发','纯玩0购物'],
+    timeline: [
+      { day:'第一天', title:'抵京 · 前门大街漫步', desc:'乘坐高铁二等座抵达北京，入住精选四星酒店。下午漫步前门大街，傍晚前往老舍茶馆，听京剧、品香茗，开启京城慢游之旅。', tags:['前门大街','老舍茶馆','京剧体验'] },
+      { day:'第二天', title:'天安门广场 · 故宫中轴线深度游', desc:'上午游览天安门广场，感受首都的历史厚重。下午深度游览故宫，沿中轴线漫步，午后小憩，静享皇城的宁静时光。', tags:['天安门','故宫','中轴线'] },
+      { day:'第三天', title:'恭王府"摸福字碑" · 颐和园游船', desc:'上午游览恭王府，亲手触摸"福字碑"，祈福纳祥。下午颐和园游船，沿长廊漫步，水上观山，感受皇家园林的绝美风光。', tags:['恭王府','摸福字碑','颐和园','游船'] },
+      { day:'第四天', title:'天坛祈年殿 · 什刹海胡同游', desc:'上午祭拜天坛祈年殿，感受古代皇家文化。下午乘三轮车悠然游什刹海胡同，聆听老北京故事，品尝地道小吃。', tags:['天坛','祈年殿','什刹海','胡同文化'] },
+      { day:'第五天', title:'北海公园 · 温暖返程', desc:'上午游览北海公园，重温经典老歌"让我们荡起双桨"，感受岁月静好。午后乘高铁返回常州金坛，圆满结束此次京城之旅。', tags:['北海公园','温暖返程'] }
+    ],
+    includes: [
+      { icon:'🚄', title:'高铁往返（二等座）', desc:'常州金坛站出发，车费约1078元已含在内，全程舒适安心。' },
+      { icon:'🏨', title:'四晚四星酒店住宿', desc:'精选舒适四星酒店，双人标准间，含每日早餐。' },
+      { icon:'🍽️', title:'全程餐食', desc:'含每日早餐及含特色餐的午晚餐，品尝地道北京风味。' },
+      { icon:'🎫', title:'所有景点门票及体验', desc:'行程所列所有景点门票及参观体验费用全部包含。' },
+      { icon:'👨‍⚕️', title:'专业健康管家服务', desc:'资深导游+专属健康管家全程随行，每日健康监测。' },
+      { icon:'🛡️', title:'高额旅游意外保险', desc:'为每位团员购买旅游意外险，出行无忧。' },
+      { icon:'🚌', title:'金坛高铁站定点接送', desc:'提供金坛区高铁站定点接送服务，无需担心交通问题。' }
+    ],
+    tips:[
+      { icon:'👴', title:'适合人群', desc:'60-80岁身体健康的老年朋友，需能独立行走。' },
+      { icon:'💊', title:'随身药品', desc:'请携带个人常用药物，如有慢性病请提前告知领队。' },
+      { icon:'👟', title:'穿着建议', desc:'以舒适为主，建议穿运动鞋或平底鞋。' },
+      { icon:'📱', title:'保持联系', desc:'出行前请将领队电话存入手机。' }
+    ]
+  },
+  jiangxi: {
+    title: '海昏探秘 · 赣鄱山水之旅',
+    sub: '5天4晚 | 舒适大巴 | 特色餐食',
+    theme: 'green',
+    price: 2980,
+    priceLabel: '¥2,980/人',
+    dates: ['2026年3月1日','2026年3月15日','2026年4月5日','2026年4月12日','2026年7月4日','2026年7月11日','2026年7月18日','2026年7月25日','2026年8月1日','2026年8月8日','2026年8月15日','2026年8月22日'],
+    badges: ['大巴往返','精品酒店','全程膳食','3月/4月出发','纯玩0购物'],
+    timeline: [
+      { day:'第一天', title:'金坛→南昌 · 英雄城初印象', desc:'早出发前往南昌，游览万寿宫历史文化街区，感受南昌千年的历史脉络。傍晚步行赣江南岸，远眺滕王阁，品味"落霞与孤鹜齐飞"的诗境。', tags:['万寿宫','赣江','滕王阁'] },
+      { day:'第二天', title:'南昌→九江 · 穿越千年对话', desc:'上午探访海昏侯遗址博物馆，万余件出土文物诉说西汉辉煌。下午前往东林大佛，看万松参天，再赴净心之旅，感受内心的宁静与沉淀。', tags:['海昏侯遗址','东林大佛','净心'] },
+      { day:'第三天', title:'九江→景德镇 · 不识庐山真面目', desc:'上午游庐山，望【秀峰】登【花径】品【琵琶亭】。中午品尝庐山云雾茶，下午赴南湖河文创园夜游，感受千年瓷都的文艺气息。', tags:['庐山','花径','南湖河文创'] },
+      { day:'第四天', title:'景德镇→婺源 · 千年窑梦里婺源', desc:'上午走进【古窑民俗博物馆】，探寻家家户户烧窑的古老技艺。下午前往【篁岭】，感受梯田花海，傍晚欣赏婺女洲大型实景演出，美不胜收。', tags:['古窑博物馆','篁岭','婺女洲演出'] },
+      { day:'第五天', title:'婺源→返程 · 藕秋入家满载而归', desc:'上午漫步【篁岭】晒秋，晾晒的蔬果与古民居构成最美乡愁画面。午后踏上返程，满载江西的山水情、文化情、人情，圆满归来。', tags:['篁岭晒秋','古民居','温馨返程'] }
+    ],
+    includes: [
+      { icon:'🚌', title:'全程舒适大巴（约30人）', desc:'精选舒适空调大巴，专业司机驾驶，安全便捷。' },
+      { icon:'🏨', title:'四晚精品酒店住宿', desc:'精选当地优质酒店，舒适双人间，含每日早餐。' },
+      { icon:'🍽️', title:'全程特色餐食', desc:'含早餐及含特色餐的午晚餐，品尝赣菜、徽菜正宗风味。' },
+      { icon:'🎫', title:'所有景点门票', desc:'行程所列南昌、九江、景德镇、婺源所有景点门票全含。' },
+      { icon:'👨‍⚕️', title:'专属健康管家服务', desc:'全程健康管家随行，节奏舒缓，不赶路不心急。' },
+      { icon:'🛡️', title:'旅游意外保险', desc:'为每位团员购买旅游意外险，出行无忧。' },
+      { icon:'🚌', title:'金坛出发接送', desc:'提供金坛区集散点定点接送，轻松出行。' }
+    ],
+    tips:[
+      { icon:'👴', title:'适合人群', desc:'60-80岁身体健康的老年朋友，需能独立行走。' },
+      { icon:'💊', title:'随身药品', desc:'请携带个人常用药物，如有慢性病请提前告知领队。' },
+      { icon:'👟', title:'穿着建议', desc:'以舒适为主，建议穿运动鞋或平底鞋。' },
+      { icon:'📱', title:'保持联系', desc:'出行前请将领队电话存入手机。' }
+    ]
+  },
+
+  jiangnan: {
+    title: '两日江南 · 南浔双林古镇',
+    sub: '2天1晚 | 旅游大巴 | 地道餐食',
+    theme: 'warm',
+    price: 499,
+    priceLabel: '¥499/人',
+    dates: ['2026年3月8日','2026年3月22日','2026年4月5日','2026年4月19日','2026年5月3日','2026年7月4日','2026年7月11日','2026年7月18日','2026年7月25日','2026年8月1日','2026年8月8日','2026年8月15日','2026年8月22日'],
+    badges: ['大巴往返','精品民宿','地道餐食','3月/4月出发','纯玩0购物'],
+    timeline: [
+      { day:'Day1 上午', title:'出发 · 漫游双林古桥秘境', desc:'08:30从茅山颐园出发，11:30抵达南浔午餐。12:30简单休整后，13:30抵达双林古镇，逛老街、蔡宅、绫绢工坊，感受传统织造非遗技艺。', tags:['双林古镇','绫绢非遗','百年蔡宅','费新我故居'] },
+      { day:'Day1 下午', title:'三桥日落 · 夜游南浔', desc:'16:00在标志性双林三桥等候日落，金色桥影倒映水面如诗如画。18:00晚餐后驱车前往南浔入住。19:00夜游南浔，赏水乡灯火阑珊。', tags:['双林三桥','日落金影','夜游南浔','水乡灯火'] },
+      { day:'Day2 上午', title:'深度南浔 · 丝商风雅', desc:'08:30晨雾中游览百间楼，09:00打卡四大核心园林宅邸：小莲庄、嘉业藏书楼、张石铭故居、刘氏梯号，品读百年丝商历史建筑，感受江南文人风雅。', tags:['小莲庄','嘉业藏书楼','张石铭故居','刘氏梯号'] },
+      { day:'Day2 下午', title:'美食购物 · 满载而归', desc:'12:30品尝古镇特色太湖水乡美食。14:00闲逛街巷，采购伴手礼，结束返程，带着满满的江南记忆踏上归途。', tags:['特色美食','伴手礼','温馨返程'] }
+    ],
+    includes: [
+      { icon:'🚌', title:'全程旅游大巴', desc:'舒适空调大巴全程接送，从出发地直达景区，无需换乘。' },
+      { icon:'🏨', title:'一晚精品民宿/酒店', desc:'南浔古镇内精选住宿，感受水乡夜晚宁静。' },
+      { icon:'🍽️', title:'地道午餐、晚餐', desc:'Day1午餐、晚餐，Day2午餐，品尝正宗太湖水乡特色菜肴。' },
+      { icon:'🎫', title:'双林古镇+南浔景区门票', desc:'含全程行程所列景点门票及非遗体验参观费用。' },
+      { icon:'👨‍⚕️', title:'全程导游服务', desc:'资深导游讲解，深度了解江南丝商文化与历史。' },
+      { icon:'🛡️', title:'旅游意外保险', desc:'旅行社责任险和旅游人身意外险全程保障。' }
+    ],
+    tips:[
+      { icon:'👴', title:'适合人群', desc:'60-80岁身体健康的老年朋友，需能独立行走。' },
+      { icon:'💊', title:'随身药品', desc:'请携带个人常用药物，如有慢性病请提前告知领队。' },
+      { icon:'👟', title:'穿着建议', desc:'以舒适为主，建议穿运动鞋或平底鞋。' },
+      { icon:'📱', title:'保持联系', desc:'出行前请将领队电话存入手机。' }
+    ]
+  },
+
+  tianmuhu: {
+    title: '大觉寺 · 天目湖一日游',
+    sub: '1天 | 旅游大巴 | 禅意+湖鲜+山水',
+    theme: 'sky',
+    price: 199,
+    priceLabel: '¥199/人（55岁以下加55元）',
+    dates: ['2026年3月5日','2026年3月12日','2026年3月19日','2026年3月26日','2026年4月2日','2026年4月9日','2026年4月16日','2026年7月2日','2026年7月9日','2026年7月16日','2026年7月23日','2026年7月30日','2026年8月6日','2026年8月13日','2026年8月20日','2026年8月27日'],
+    badges: ['大巴往返','含鱼头午宴','3月/4月出发','纯玩0购物'],
+    timeline: [
+      { day:'上午 09:00-11:30', title:'游览大觉寺 · 禅意静心祈福', desc:'游览被誉为"小布达拉宫"的大觉寺，瞻仰星云大师祖庭。参观大雄宝殿、菩提广场、佛光楼，感受禅意宁静。漫步庭院与云湖风光，静心祈福，洗涤心灵。', tags:['大觉寺','星云大师祖庭','佛光楼','菩提广场','禅意祈福'] },
+      { day:'中午 12:00-13:30', title:'天目湖砂锅鱼头宴 · 地道湖鲜', desc:'前往天目湖景区周边餐厅，品尝非遗天目湖砂锅鱼头，汤色奶白、鲜醇无腥，搭配溧阳当地美食，尽享地道风味，补充体力迎接下午游览。', tags:['砂锅鱼头','天目湖特色','溧阳美食'] },
+      { day:'下午 13:30-16:00', title:'天目湖山水园 · 人在画中游', desc:'游览核心景区，环湖赏景，乘船体验人在画中游，饱览天目湖湖光山色。碧波荡漾的湖面倒映青山，如诗如画，让人流连忘返。', tags:['天目湖山水园','环湖赏景','游船体验'] }
+    ],
+    includes: [
+      { icon:'🚌', title:'旅游大巴全程接送', desc:'舒适空调大巴从出发地直达景区，全程无忧。' },
+      { icon:'🍽️', title:'天目湖砂锅鱼头午宴', desc:'正宗天目湖非遗砂锅鱼头，地道溧阳风味美食一顿。' },
+      { icon:'🎫', title:'大觉寺+天目湖山水园门票', desc:'全程景点门票已含，无需额外购买。' },
+      { icon:'👨‍⚕️', title:'全程导游+护士+管家', desc:'专业导游讲解，护士随行保障健康，管家贴心服务。' },
+      { icon:'🛡️', title:'旅行社责任险+人身意外险', desc:'双重保险保障，出行更安心。' }
+    ],
+    tips:[
+      { icon:'👴', title:'适合人群', desc:'60-80岁身体健康的老年朋友，需能独立行走。' },
+      { icon:'💊', title:'随身药品', desc:'请携带个人常用药物，如有慢性病请提前告知领队。' },
+      { icon:'👟', title:'穿着建议', desc:'以舒适为主，建议穿运动鞋或平底鞋。' },
+      { icon:'📱', title:'保持联系', desc:'出行前请将领队电话存入手机。' }
+    ]
+  },
+
+  yaohuzhen: {
+    title: '窑湖小镇 · 纯玩一日游',
+    sub: '1天 | 空调旅游车 | 陶文化体验',
+    theme: 'green',
+    price: 129,
+    priceLabel: '¥129/人（不满70周岁另交30元）',
+    dates: ['2026年3月7日','2026年3月14日','2026年3月21日','2026年3月28日','2026年4月4日','2026年4月11日','2026年4月18日','2026年7月4日','2026年7月11日','2026年7月18日','2026年7月25日','2026年8月1日','2026年8月8日','2026年8月15日','2026年8月22日'],
+    badges: ['大巴往返','含午餐','3月/4月出发','纯玩0购物'],
+    timeline: [
+      { day:'07:30', title:'出发 · 西城街道养老服务中心', desc:'07:30从西城街道综合养老服务中心准时出发，乘坐舒适空调旅游车前往宜兴，全程约1.5小时。', tags:['西城街道出发','空调旅游车'] },
+      { day:'09:00', title:'宜兴陶二厂 · 陶文化艺术探索', desc:'抵达宜兴市陶二厂，这里前身是江苏省宜兴紫砂工艺二厂，改造后集陶文化、艺术展览与商业消费于一体，是宜兴陶文化旅游新地标，感受千年紫砂魅力。', tags:['陶二厂','紫砂文化','艺术展览'] },
+      { day:'11:00', title:'窑湖小镇园区用餐', desc:'11:00在宜兴市窑湖小镇园区享用午餐，品尝当地特色美食，补充体力，为下午的小火车之旅做好准备。', tags:['园区午餐','特色美食'] },
+      { day:'12:00', title:'乘小火车入园游玩 · 窑湖江南', desc:'乘坐特色小火车穿越窑湖小镇，这里被誉为"苏东坡笔下的江南小镇"，一步一景，既有自然山水的宁静，也有各种演出和活动的热闹，尽享悠闲时光。', tags:['小火车','窑湖小镇','江南风情','演出活动'] },
+      { day:'16:00', title:'返程 · 满载而归', desc:'16:00结束游览，乘车返回常州，约傍晚抵达，圆满结束一天的陶韵江南之旅。', tags:['温馨返程'] }
+    ],
+    includes: [
+      { icon:'🚌', title:'空调旅游车全程接送', desc:'从西城街道综合养老服务中心出发，全程舒适空调车。' },
+      { icon:'🍽️', title:'一顿午餐', desc:'窑湖小镇园区特色午餐一顿，地道宜兴风味。' },
+      { icon:'🎫', title:'陶二厂+窑湖小镇门票', desc:'含小火车票及全程景点参观门票。' },
+      { icon:'👨‍⚕️', title:'全程导游+护士+社工', desc:'三重随行保障，全程贴心陪伴，安全又放心。' },
+      { icon:'🛡️', title:'旅行社责任险+人身意外险', desc:'双重保险全程保障，老年朋友出行无忧。' }
+    ],
+    tips:[
+      { icon:'👴', title:'适合人群', desc:'60-80岁身体健康的老年朋友，需能独立行走。' },
+      { icon:'💊', title:'随身药品', desc:'请携带个人常用药物，如有慢性病请提前告知领队。' },
+      { icon:'👟', title:'穿着建议', desc:'以舒适为主，建议穿运动鞋或平底鞋。' },
+      { icon:'📱', title:'保持联系', desc:'出行前请将领队电话存入手机。' }
+    ]
+  }
+};
+
+let tours;
+try {
+  const saved = localStorage.getItem('moyuanTours');
+  tours = saved ? JSON.parse(saved) : null;
+} catch(e) { tours = null; }
+if(!tours || Object.keys(tours).length === 0) {
+  tours = JSON.parse(JSON.stringify(defaultTours));
+}
+
+// ── 动态渲染线路卡片 ──
+function renderTourCards() {
+  const container = document.getElementById('tours-container');
+  if(!container || !tours) return;
+  const city = currentCity || '常州金坛';
+  const tourIds = Object.keys(tours);
+  if(tourIds.length === 0) { container.innerHTML = '<div style="text-align:center;padding:40px;color:#999;">暂无线路，请在管理后台添加</div>'; return; }
+
+  // 从localStorage读取分类
+  let categories = null;
+  try {
+    const saved = localStorage.getItem('moyuanCategories');
+    categories = saved ? JSON.parse(saved) : null;
+  } catch(e) {}
+
+  // 按分类分组
+  const groups = []; // [{name, tours:[id,...]}]
+  const categorizedIds = new Set();
+  if(categories) {
+    Object.values(categories).forEach(function(cat) {
+      const catTours = cat.tours.filter(function(id) { return tours[id]; });
+      if(catTours.length > 0) {
+        groups.push({ name: cat.name, tours: catTours });
+        catTours.forEach(function(id) { categorizedIds.add(id); });
+      }
+    });
+  }
+  // 未分类的线路放到最后
+  const uncategorized = tourIds.filter(function(id) { return !categorizedIds.has(id); });
+  if(uncategorized.length > 0) {
+    groups.push({ name: '其他路线', tours: uncategorized });
+  }
+
+  function renderCard(id) {
+    const t = tours[id];
+    if(!t) return '';
+    const theme = t.theme || 'sky';
+    const themeClass = theme + '-theme';
+    const iconMap = { beijing:'🏯', jiangxi:'🌿', jiangnan:'🏮', tianmuhu:'🏯', yaohuzhen:'🏺' };
+    const defaultIcons = ['🏞️','🌸','🎯','⛰️','🎪','🏛️','🚀','🎡'];
+    const icon = iconMap[id] || defaultIcons[Math.abs(id.split('').reduce(function(a,c){return a+c.charCodeAt(0)},0)) % defaultIcons.length];
+
+    // 卡片内联样式（非标准主题）
+    let cardStyle = '';
+    let badgeStyle = '';
+    let dayTagStyle = '';
+    let btnStyle = '';
+    if(theme === 'warm') {
+      cardStyle = 'style="border-color:rgba(139,90,60,0.15)"';
+      badgeStyle = ' style="background:#f5ede3;color:#8b5a3c"';
+      dayTagStyle = ' style="background:#8b5a3c"';
+      btnStyle = ' style="background:linear-gradient(135deg,#8b5a3c,#6b3f24)"';
+    }
+
+    // 图片轮播
+    let carouselHtml = '';
+    if(t.images && t.images.length > 0) {
+      carouselHtml = '<div class="card-carousel" data-tour="'+id+'">' +
+        t.images.map(function(url) {
+          return '<div class="carousel-item"><img src="'+url+'" alt=""></div>';
+        }).join('') +
+        '</div>' +
+        '<div class="carousel-dots" data-tour="'+id+'">' +
+        t.images.map(function(_, i) {
+          return '<span class="carousel-dot'+(i===0?' active':'')+'"></span>';
+        }).join('') +
+        '</div>';
+    } else {
+      // 默认占位
+      const gradients = {
+        beijing: ['#1a6fa0','#c0392b','#27ae60'],
+        jiangxi: ['#1e7a4a','#8e44ad','#d35400'],
+        jiangnan: ['#8b5a3c','#2c3e50','#16a085'],
+        tianmuhu: ['#0d7aaa','#2980b9','#1abc9c'],
+        yaohuzhen: ['#2a8e57','#7f8c8d','#e67e22']
+      };
+      const g = gradients[id] || ['#1a9fd4','#3ab26e','#f0b429'];
+      const emojis = { beijing:['🏯','🏛️','🚣'], jiangxi:['🌿','🏔️','🏺'], jiangnan:['🏮','🌉','🌅'], tianmuhu:['🏯','🐟','⛵'], yaohuzhen:['🏺','🚂','🎪'] };
+      const e = emojis[id] || ['🏞️','🌸','⛰️'];
+      carouselHtml = '<div class="card-carousel" data-tour="'+id+'">' +
+        g.map(function(c, i) {
+          return '<div class="carousel-item"><div class="carousel-placeholder" style="background:linear-gradient(135deg,'+c+','+g[(i+1)%3]+');">'+e[i]+'</div></div>';
+        }).join('') +
+        '</div>' +
+        '<div class="carousel-dots" data-tour="'+id+'"><span class="carousel-dot active"></span><span class="carousel-dot"></span><span class="carousel-dot"></span></div>';
+    }
+
+    // 行程摘要
+    const itineraryHtml = (t.timeline || []).map(function(item) {
+      return '<div class="itinerary-row"><span class="day-tag"'+dayTagStyle+'>'+item.day+'</span><span class="itinerary-text">'+item.title+'</span></div>';
+    }).join('');
+
+    // badge
+    const badges = t.badges || ['纯玩0购物','3月/4月出发'];
+    const badgesHtml = badges.map(function(b) {
+      return '<span class="badge"'+badgeStyle+'>'+b+'</span>';
+    }).join('');
+
+    return '<div class="tour-card '+themeClass+'" '+cardStyle+' onclick="showDetail(\''+id+'\')">' +
+      '<div class="card-header">' +
+        '<div class="card-icon"'+(theme==='warm'?' style="background:linear-gradient(135deg,#f5ede3,#e8d5bc)"':'')+'>'+icon+'</div>' +
+        '<div class="card-info">' +
+          '<div class="card-title">'+t.title+'</div>' +
+          '<div class="card-sub">'+t.sub+' | <span class="city-from">'+city+'</span>出发</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="card-badges">'+badgesHtml+'</div>' +
+      carouselHtml +
+      '<div class="card-itinerary">'+itineraryHtml+'</div>' +
+      '<div class="card-footer">' +
+        '<div class="price-info"><span class="price-from">¥</span><span class="price-num">'+t.price.toLocaleString()+'</span><span class="price-unit">/人起</span></div>' +
+        '<button class="btn-book"'+btnStyle+' onclick="event.stopPropagation();openBooking(\''+id+'\')">立即预订</button>' +
+      '</div>' +
+    '</div>';
+  }
+
+  let html = '';
+  groups.forEach(function(group) {
+    html += '<div class="section"><div class="section-title">'+group.name+'</div>';
+    group.tours.forEach(function(id) { html += renderCard(id); });
+    html += '</div>';
+  });
+  container.innerHTML = html;
+
+  // 绑定轮播圆点同步
+  container.querySelectorAll('.card-carousel').forEach(function(carousel) {
+    var tourId = carousel.getAttribute('data-tour');
+    var dotsContainer = container.querySelector('.carousel-dots[data-tour="'+tourId+'"]');
+    if(!dotsContainer) return;
+    var dots = dotsContainer.querySelectorAll('.carousel-dot');
+    carousel.addEventListener('scroll', function() {
+      var idx = Math.round(carousel.scrollLeft / carousel.offsetWidth);
+      dots.forEach(function(d, i) { d.classList.toggle('active', i === idx); });
+    });
+  });
+}
+
+let currentTour = 'beijing';
+let peopleCount = 1;
+
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  document.querySelectorAll('.bottom-item').forEach(b => b.classList.remove('active'));
+  if(name==='home') document.getElementById('bar-home').classList.add('active');
+  if(name==='orders') document.getElementById('bar-orders').classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function showDetail(tourId) {
+  currentTour = tourId;
+  const t = tours[tourId];
+  document.getElementById('detail-title').textContent = t.title;
+  document.getElementById('detail-sub').textContent = t.sub;
+  const bg = document.getElementById('detail-hero-bg');
+  // 优先使用第一张轮播图作为背景，没有则用主题色
+  const firstImg = (t.images && t.images.length > 0) ? t.images[0] : null;
+  if(firstImg) {
+    bg.className = 'detail-hero-bg';
+    bg.style.background = 'url(' + firstImg + ') center/cover no-repeat';
+  } else {
+    bg.style.background = '';
+    bg.className = 'detail-hero-bg ' + (t.theme==='green' ? 'green-bg' : t.theme==='warm' ? 'warm-bg' : 'sky-bg');
+  }
+
+  // tabs reset
+  document.querySelectorAll('.tab').forEach((tab,i)=>{
+    tab.classList.toggle('active', i===0);
+  });
+  document.querySelectorAll('.tab-content').forEach((tc,i)=>{
+    tc.classList.toggle('active', i===0);
+  });
+
+  // Timeline
+  const dotClass = t.theme==='green' ? 'green-dot' : t.theme==='warm' ? 'warm-dot' : 'sky-dot';
+  const timeline = document.getElementById('detail-timeline');
+  timeline.innerHTML = t.timeline.map((item, idx) => `
+    <div class="timeline-item">
+      <div class="timeline-left">
+        <div class="timeline-dot ${dotClass}">${idx+1}</div>
+        ${idx < t.timeline.length-1 ? '<div class="timeline-line"></div>' : ''}
+      </div>
+      <div class="timeline-right">
+        <div class="timeline-day">${item.day}</div>
+        <div class="timeline-title">${item.title}</div>
+        <div class="timeline-desc">${item.desc}</div>
+        <div class="timeline-tags">${item.tags.map(tag=>`<span class="timeline-tag">${tag}</span>`).join('')}</div>
+      </div>
+    </div>
+  `).join('');
+
+  // Includes
+  const inc = document.getElementById('detail-includes');
+  inc.innerHTML = t.includes.map(item => `
+    <div class="include-item">
+      <div class="include-icon">${item.icon}</div>
+      <div class="include-text"><h4>${item.title}</h4><p>${item.desc}</p></div>
+    </div>
+  `).join('');
+
+  const tipsEl = document.getElementById('detail-tips');
+  const tips = t.tips || [];
+  tipsEl.innerHTML = tips.map(item => `
+    <div class="include-item">
+      <div class="include-icon">${item.icon}</div>
+      <div class="include-text"><h4>${item.title}</h4><p>${item.desc}</p></div>
+    </div>
+  `).join('');
+
+  const btnGradients = { sky:'linear-gradient(135deg,#1a9fd4,#0d7aaa)', green:'linear-gradient(135deg,#3ab26e,#2a8e57)', warm:'linear-gradient(135deg,#8b5a3c,#6b3f24)' };
+  document.getElementById('detail-book-btn').style.background = btnGradients[t.theme] || btnGradients.sky;
+
+  showPage('detail');
+}
+
+function openBooking(tourId) {
+  currentTour = tourId;
+  const t = tours[tourId];
+  document.getElementById('booking-title').textContent = '预订 · ' + t.title.split('·')[0].trim();
+  const station = cityData[currentCity] ? cityData[currentCity].station : currentCity;
+  document.getElementById('booking-sub').textContent = t.sub + ' | 📍 ' + station + '出发';
+  const gradients = { sky:'linear-gradient(135deg,#0d7aaa,#1a9fd4)', green:'linear-gradient(135deg,#1e7a4a,#3ab26e)', warm:'linear-gradient(135deg,#6b3f24,#8b5a3c)' };
+  document.getElementById('booking-header').style.background = gradients[t.theme] || gradients.sky;
+  document.getElementById('s-price').textContent = t.priceLabel;
+  document.getElementById('s-unit-price').textContent = '每位' + t.priceLabel + '起';
+
+  // Update date options
+  const sel = document.getElementById('f-date');
+  sel.innerHTML = '<option value="">请选择出发日期</option>' + t.dates.map(d=>`<option>${d}</option>`).join('');
+
+  peopleCount = 1;
+  document.getElementById('people-count').textContent = 1;
+  updateSummary();
+  showPage('booking');
+}
+
+function openBookingFromDetail() { openBooking(currentTour); }
+
+function changePeople(delta) {
+  peopleCount = Math.max(1, Math.min(10, peopleCount + delta));
+  document.getElementById('people-count').textContent = peopleCount;
+  updateSummary();
+}
+
+function updateSummary() {
+  const t = tours[currentTour];
+  const total = t.price * peopleCount;
+  document.getElementById('s-tour').textContent = t.title.split('·')[0].trim();
+  document.getElementById('s-people').textContent = peopleCount + '人';
+  document.getElementById('s-price').textContent = t.priceLabel;
+  document.getElementById('s-total').textContent = '¥' + total.toLocaleString();
+}
+
+function submitBooking() {
+  const name = document.getElementById('f-name').value.trim();
+  const phone = document.getElementById('f-phone').value.trim();
+  const date = document.getElementById('f-date').value;
+  if(!name) { alert('请输入联系人姓名'); return; }
+  if(!/^1[3-9]\d{9}$/.test(phone)) { alert('请输入正确的手机号码'); return; }
+  if(!date) { alert('请选择出发日期'); return; }
+
+  const t = tours[currentTour];
+  const total = t.price * peopleCount;
+  const orderId = 'MY' + Date.now().toString().slice(-8);
+
+  // Save order to localStorage
+  const order = {
+    id: orderId,
+    tourId: currentTour,
+    tourTitle: t.title.split('·')[0].trim(),
+    date: date,
+    people: peopleCount,
+    price: t.price,
+    total: total,
+    name: name,
+    phone: phone,
+    note: document.getElementById('f-note').value.trim(),
+    status: 'confirmed',
+    createdAt: new Date().toISOString()
+  };
+  const orders = JSON.parse(localStorage.getItem('moyuanOrders') || '[]');
+  orders.unshift(order);
+  localStorage.setItem('moyuanOrders', JSON.stringify(orders));
+
+  document.getElementById('order-id-display').textContent = orderId;
+  document.getElementById('s-success-tour').textContent = t.title.split('·')[0].trim();
+  document.getElementById('s-success-date').textContent = date;
+  document.getElementById('s-success-people').textContent = peopleCount + '人';
+  document.getElementById('s-success-name').textContent = name;
+  document.getElementById('s-success-phone').textContent = phone;
+  document.getElementById('s-success-total').textContent = '¥' + total.toLocaleString();
+
+  showPage('success');
+}
+
+// ── City Selector ──
+const defaultCityData = {
+  '常州金坛': { station:'金坛高铁站', address:'常州市金坛区南洲里颐养中心' },
+  '常州市区': { station:'常州高铁站', address:'常州市钟楼区集散中心' },
+  '无锡':     { station:'无锡东站', address:'无锡市集散中心' },
+  '南京':     { station:'南京南站', address:'南京市集散中心' },
+  '苏州':     { station:'苏州高铁北站', address:'苏州市集散中心' },
+  '北京':     { station:'北京南站', address:'北京市集散中心' },
+};
+let cityData;
+try {
+  const saved = localStorage.getItem('moyuanCityData');
+  cityData = saved ? JSON.parse(saved) : null;
+} catch(e) { cityData = null; }
+if(!cityData || Object.keys(cityData).length === 0) {
+  cityData = JSON.parse(JSON.stringify(defaultCityData));
+}
+let currentCity = '常州金坛';
+
+// 每个城市可用的线路
+const defaultCityTours = {
+  '常州金坛': ['beijing','jiangxi','jiangnan','tianmuhu','yaohuzhen'],
+  '常州市区': ['beijing','jiangxi','jiangnan','tianmuhu','yaohuzhen'],
+  '无锡':     ['beijing','jiangxi','jiangnan','tianmuhu','yaohuzhen'],
+  '南京':     ['beijing','jiangxi','jiangnan','tianmuhu','yaohuzhen'],
+  '苏州':     ['beijing','jiangxi','jiangnan','tianmuhu','yaohuzhen'],
+  '北京':     ['jiangxi','jiangnan','tianmuhu','yaohuzhen'],
+};
+let cityTours;
+try {
+  const saved = localStorage.getItem('moyuanCityTours');
+  cityTours = saved ? JSON.parse(saved) : null;
+} catch(e) { cityTours = null; }
+if(!cityTours || Object.keys(cityTours).length === 0) {
+  cityTours = JSON.parse(JSON.stringify(defaultCityTours));
+}
+
+function filterToursByCity() {
+  const available = cityTours[currentCity] || [];
+  document.querySelectorAll('#page-home .tour-card').forEach(card => {
+    const onclick = card.getAttribute('onclick') || '';
+    const match = onclick.match(/showDetail\('([^']+)'\)/);
+    if(match) {
+      const tourId = match[1];
+      card.style.display = available.includes(tourId) ? '' : 'none';
+    }
+  });
+  // 更新 hero 统计
+  const routeCountEl = document.querySelector('.hero-stat:nth-child(1) .num');
+  if(routeCountEl) routeCountEl.textContent = available.length;
+}
+
+function toggleCityDropdown(e) {
+  e.stopPropagation();
+  const dd = document.getElementById('city-dropdown');
+  const arrow = document.getElementById('city-arrow');
+  const isOpen = dd.classList.contains('open');
+  dd.classList.toggle('open', !isOpen);
+  arrow.classList.toggle('open', !isOpen);
+}
+
+function selectCity(e, cityName, stationName) {
+  e.stopPropagation();
+  currentCity = cityName;
+  const data = cityData[cityName];
+
+  // Nav
+  document.getElementById('nav-city').textContent = cityName;
+  // Hero tag
+  document.getElementById('hero-city').textContent = cityName;
+  // Card subs
+  document.querySelectorAll('.city-from').forEach(el => el.textContent = cityName);
+  // Contact
+  document.getElementById('contact-city-text').textContent = '📍 ' + data.address;
+
+  // Dropdown options highlight
+  document.querySelectorAll('.city-option').forEach(opt => {
+    const isSelected = opt.textContent.trim().startsWith(cityName.slice(0,2)) ||
+                       opt.textContent.includes(cityName);
+    opt.classList.toggle('selected', isSelected);
+    let check = opt.querySelector('.city-check');
+    if(isSelected) {
+      if(!check) { check = document.createElement('span'); check.className='city-check'; opt.appendChild(check); }
+      check.textContent = '✓';
+    } else {
+      if(check) check.remove();
+    }
+  });
+
+  // Close dropdown
+  document.getElementById('city-dropdown').classList.remove('open');
+  document.getElementById('city-arrow').classList.remove('open');
+
+  // Filter tours by city
+  renderTourCards();
+  filterToursByCity();
+
+  // Show toast
+  showToast('出发地已切换为 ' + cityName + ' (' + stationName + ')');
+}
+
+function showContact() {
+  try {
+    const saved = localStorage.getItem('moyuanContact');
+    if(saved) {
+      const c = JSON.parse(saved);
+      if(c.phone) {
+        document.getElementById('contact-phone-link').href = 'tel:' + c.phone;
+        document.getElementById('contact-phone-text').textContent = c.phone;
+      }
+      if(c.address) {
+        document.getElementById('contact-address-text').textContent = c.address;
+      }
+    }
+  } catch(e) {}
+  document.getElementById('contact-modal').classList.add('open');
+}
+
+function showToast(msg) {
+  let toast = document.getElementById('toast');
+  if(!toast) {
+    toast = document.createElement('div');
+    toast.id = 'toast';
+    toast.style.cssText = `position:fixed;bottom:100px;left:50%;transform:translateX(-50%);
+      background:rgba(30,30,30,0.85);color:#fff;padding:10px 20px;border-radius:20px;
+      font-size:14px;z-index:9999;white-space:nowrap;transition:opacity 0.3s;`;
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.style.opacity = '1';
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => toast.style.opacity='0', 2000);
+}
+
+// Close dropdown when tapping elsewhere
+document.addEventListener('click', () => {
+  document.getElementById('city-dropdown').classList.remove('open');
+  document.getElementById('city-arrow').classList.remove('open');
+});
+
+function switchTab(el, tabId) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+
+// ── Orders Management ──
+function getOrders() {
+  return JSON.parse(localStorage.getItem('moyuanOrders') || '[]');
+}
+
+function renderOrders() {
+  const orders = getOrders();
+  const container = document.getElementById('orders-list-container');
+  if(orders.length === 0) {
+    container.innerHTML = `
+      <div class="orders-empty">
+        <div class="orders-empty-icon">📋</div>
+        <div class="orders-empty-text">暂无订单<br>快去挑选心仪的行程吧~</div>
+      </div>`;
+    return;
+  }
+  const statusMap = {
+    confirmed: { text: '已确认', cls: 'status-confirmed' },
+    pending: { text: '待确认', cls: 'status-pending' },
+    cancelled: { text: '已取消', cls: 'status-cancelled' }
+  };
+  container.innerHTML = '<div class="order-list">' + orders.map((o, idx) => {
+    const st = statusMap[o.status] || statusMap.confirmed;
+    const canModify = o.status !== 'cancelled';
+    return `
+    <div class="order-card-item">
+      <div class="order-card-header">
+        <div class="order-card-id">订单：<span>${o.id}</span></div>
+        <span class="order-status ${st.cls}">${st.text}</span>
+      </div>
+      <div class="order-card-body">
+        <div class="order-card-row"><span>行程</span><span>${o.tourTitle}</span></div>
+        <div class="order-card-row"><span>出发日期</span><span>${o.date}</span></div>
+        <div class="order-card-row"><span>出行人数</span><span>${o.people}人</span></div>
+        <div class="order-card-row"><span>联系人</span><span>${o.name}</span></div>
+        <div class="order-card-row"><span>联系电话</span><span>${o.phone}</span></div>
+        ${o.note ? `<div class="order-card-row"><span>特殊需求</span><span>${o.note}</span></div>` : ''}
+        <div class="order-card-row"><span>合计金额</span><span style="color:var(--red);font-size:16px;">¥${o.total.toLocaleString()}</span></div>
+      </div>
+      ${canModify ? `
+      <div class="order-card-footer">
+        <button class="order-btn order-btn-cancel" onclick="cancelOrder('${o.id}')">取消订单</button>
+        <button class="order-btn order-btn-modify" onclick="openModifyModal(${idx})">修改订单</button>
+      </div>` : `
+      <div class="order-card-footer">
+        <span style="font-size:14px;color:#aaa;">该订单已取消</span>
+      </div>`}
+    </div>`;
+  }).join('') + '</div>';
+}
+
+function cancelOrder(orderId) {
+  if(!confirm('确定要取消该订单吗？')) return;
+  const orders = getOrders();
+  const idx = orders.findIndex(o => o.id === orderId);
+  if(idx !== -1) {
+    orders[idx].status = 'cancelled';
+    localStorage.setItem('moyuanOrders', JSON.stringify(orders));
+    renderOrders();
+    showToast('订单已取消');
+  }
+}
+
+let modifyOrderIdx = -1;
+let modifyPeopleCount = 1;
+
+function openModifyModal(orderIdx) {
+  const orders = getOrders();
+  const order = orders[orderIdx];
+  if(!order) return;
+  modifyOrderIdx = orderIdx;
+  modifyPeopleCount = order.people;
+
+  // Fill modal
+  const sel = document.getElementById('m-date');
+  const t = tours[order.tourId];
+  if(t) {
+    sel.innerHTML = '<option value="">请选择出发日期</option>' + t.dates.map(d => `<option ${d===order.date?'selected':''}>${d}</option>`).join('');
+  }
+  document.getElementById('modify-people-count').textContent = modifyPeopleCount;
+  document.getElementById('m-note').value = order.note || '';
+  document.getElementById('modify-modal').classList.add('open');
+}
+
+function closeModifyModal() {
+  document.getElementById('modify-modal').classList.remove('open');
+  modifyOrderIdx = -1;
+}
+
+function changeModifyPeople(delta) {
+  modifyPeopleCount = Math.max(1, Math.min(10, modifyPeopleCount + delta));
+  document.getElementById('modify-people-count').textContent = modifyPeopleCount;
+}
+
+function confirmModify() {
+  if(modifyOrderIdx < 0) return;
+  const orders = getOrders();
+  const order = orders[modifyOrderIdx];
+  const newDate = document.getElementById('m-date').value;
+  const t = tours[order.tourId];
+
+  if(!newDate) { alert('请选择出发日期'); return; }
+
+  order.date = newDate;
+  order.people = modifyPeopleCount;
+  order.total = t ? t.price * modifyPeopleCount : order.total;
+  order.note = document.getElementById('m-note').value.trim();
+
+  localStorage.setItem('moyuanOrders', JSON.stringify(orders));
+  closeModifyModal();
+  renderOrders();
+  showToast('订单已修改');
+}
+
+// 页面加载时初始化
+renderTourCards();
+// 自动将新线路加入所有城市的可用列表
+var allTourIds = Object.keys(tours);
+Object.keys(cityTours).forEach(function(city) {
+  allTourIds.forEach(function(id) {
+    if(!cityTours[city].includes(id)) cityTours[city].push(id);
+  });
+});
+filterToursByCity();
+</script>
+</body>
+</html>
