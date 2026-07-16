@@ -355,9 +355,13 @@ tr:hover { background: #f9fbfd; }
     <div class="card" style="margin-top:20px;border:2px solid var(--sky);">
       <div class="card-header"><h3>🌐 发布线路到首页</h3></div>
       <div class="card-body">
-        <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">将当前线路数据导出为 tours.json，上传到 GitHub 后首页即可更新</p>
-        <button class="btn btn-primary" onclick="exportToursJson()">📤 导出 tours.json</button>
-        <p style="font-size:12px;color:#999;margin-top:8px;">导出后将文件发给管理员上传到 GitHub</p>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">修改线路后，点此按钮一键发布到首页，约1-2分钟生效</p>
+        <div class="form-group">
+          <label class="form-label">GitHub 令牌（首次填写后自动保存）</label>
+          <input class="form-input" id="github-token" type="password" placeholder="粘贴 GitHub 令牌">
+        </div>
+        <button class="btn btn-primary" onclick="exportToursJson()" style="margin-top:8px;">🚀 发布到首页</button>
+        <div id="publish-status" style="font-size:13px;margin-top:8px;color:#999;"></div>
       </div>
     </div>
     <div class="card" style="margin-top:20px;">
@@ -1370,7 +1374,6 @@ function removeTourFromCategory(catId, tourId) {
 
 // ── Data Export/Import ──
 // ── 导出 tours.json 给首页使用 ──
-let GITHUB_TOKEN = localStorage.getItem('moyuanGithubToken') || '';
 let GITHUB_USER = 'myxqq';
 let GITHUB_REPO = 'moyuantrip';
 
@@ -1378,31 +1381,23 @@ function exportToursJson() {
   const t = JSON.parse(localStorage.getItem('moyuanTours') || 'null') || defaultTours;
   const json = JSON.stringify(t, null, 2);
 
-  // 本地下载一份
-  const blob = new Blob([json], {type:'application/json'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'tours.json';
-  a.click();
-  URL.revokeObjectURL(url);
-
-  // 自动上传到 GitHub
-  if(!GITHUB_TOKEN) {
-    GITHUB_TOKEN = prompt('请输入 GitHub 令牌（一次性输入后自动保存）');
-    if(GITHUB_TOKEN) localStorage.setItem('moyuanGithubToken', GITHUB_TOKEN);
+  // 读取令牌
+  let token = document.getElementById('github-token').value.trim();
+  if(!token) token = localStorage.getItem('moyuanGithubToken') || '';
+  if(!token) {
+    document.getElementById('publish-status').innerHTML = '<span style="color:red;">请先填写 GitHub 令牌</span>';
+    return;
   }
-  if(!GITHUB_TOKEN) { showToast('未输入令牌，仅下载了文件'); return; }
+  localStorage.setItem('moyuanGithubToken', token);
 
-  showToast('正在发布到首页...');
-  publishToGithub(json);
+  document.getElementById('publish-status').innerHTML = '⏳ 正在发布...';
+  publishToGithub(json, token);
 }
 
-function publishToGithub(jsonContent) {
+function publishToGithub(jsonContent, token) {
   const encoded = btoa(unescape(encodeURIComponent(jsonContent)));
-  // 先获取当前文件的 SHA（更新需要）
   fetch('https://api.github.com/repos/' + GITHUB_USER + '/' + GITHUB_REPO + '/contents/tours.json', {
-    headers: { 'Authorization': 'token ' + GITHUB_TOKEN }
+    headers: { 'Authorization': 'token ' + token }
   })
   .then(function(r) { return r.json(); })
   .then(function(data) {
@@ -1410,7 +1405,7 @@ function publishToGithub(jsonContent) {
     return fetch('https://api.github.com/repos/' + GITHUB_USER + '/' + GITHUB_REPO + '/contents/tours.json', {
       method: 'PUT',
       headers: {
-        'Authorization': 'token ' + GITHUB_TOKEN,
+        'Authorization': 'token ' + token,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
@@ -1423,13 +1418,13 @@ function publishToGithub(jsonContent) {
   .then(function(r) { return r.json(); })
   .then(function(result) {
     if(result.content) {
-      showToast('发布成功！首页约1-2分钟后更新');
+      document.getElementById('publish-status').innerHTML = '<span style="color:green;">✅ 发布成功！首页约1-2分钟后更新</span>';
     } else {
-      showToast('发布失败：' + (result.message || '未知错误'));
+      document.getElementById('publish-status').innerHTML = '<span style="color:red;">❌ 发布失败：' + (result.message || '未知错误') + '</span>';
     }
   })
   .catch(function(e) {
-    showToast('网络错误：' + e.message);
+    document.getElementById('publish-status').innerHTML = '<span style="color:red;">❌ 网络错误：' + e.message + '</span>';
   });
 }
 
