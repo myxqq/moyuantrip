@@ -1,0 +1,1414 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>默元旅游 · 管理后台</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary: #1a9fd4;
+  --primary-deep: #0d7aaa;
+  --green: #3ab26e;
+  --green-deep: #2a8e57;
+  --gold: #f0b429;
+  --red: #e8432d;
+  --bg: #f0f2f5;
+  --card: #ffffff;
+  --text: #1a1a2e;
+  --text-muted: #666;
+  --border: #e5e7eb;
+  --radius: 12px;
+  --shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Noto Sans SC',sans-serif; background:var(--bg); color:var(--text); display:flex; min-height:100vh; }
+
+/* Sidebar */
+.sidebar {
+  width: 220px; background: linear-gradient(180deg,#0d7aaa,#1a9fd4);
+  color: #fff; padding: 20px 0; flex-shrink: 0;
+  display: flex; flex-direction: column;
+  position: fixed; top: 0; left: 0; bottom: 0; z-index: 100;
+}
+.sidebar-logo {
+  font-size: 20px; font-weight: 700; padding: 0 20px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.15);
+}
+.sidebar-logo span { color: var(--gold); }
+.sidebar-nav { flex: 1; padding: 12px 0; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 20px; cursor: pointer; transition: background 0.15s;
+  font-size: 14px; color: rgba(255,255,255,0.8);
+}
+.nav-item:hover { background: rgba(255,255,255,0.1); }
+.nav-item.active { background: rgba(255,255,255,0.2); color: #fff; font-weight: 600; }
+.nav-item .icon { font-size: 18px; width: 24px; text-align: center; }
+.sidebar-footer {
+  padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.15);
+  font-size: 11px; color: rgba(255,255,255,0.5);
+}
+
+/* Main */
+.main { flex: 1; margin-left: 220px; padding: 24px; min-height: 100vh; }
+.page-header { margin-bottom: 24px; }
+.page-header h2 { font-size: 22px; font-weight: 700; }
+.page-header p { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+
+/* Stats */
+.stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 24px; }
+.stat-card {
+  background: var(--card); border-radius: var(--radius); padding: 20px;
+  box-shadow: var(--shadow); display: flex; align-items: center; gap: 14px;
+}
+.stat-icon {
+  width: 48px; height: 48px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center; font-size: 22px;
+}
+.stat-icon.blue { background: #e8f6fc; }
+.stat-icon.green { background: #e6f7ed; }
+.stat-icon.gold { background: #fff7e6; }
+.stat-icon.red { background: #fde8e6; }
+.stat-info .num { font-size: 26px; font-weight: 700; }
+.stat-info .lab { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+/* Card */
+.card {
+  background: var(--card); border-radius: var(--radius);
+  box-shadow: var(--shadow); margin-bottom: 20px; overflow: hidden;
+}
+.card-header {
+  padding: 16px 20px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.card-header h3 { font-size: 16px; font-weight: 700; }
+.card-body { padding: 20px; }
+
+/* Table */
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 12px 16px; text-align: left; font-size: 13px; border-bottom: 1px solid #f5f5f5; }
+th { background: #fafafa; font-weight: 600; color: var(--text-muted); font-size: 12px; }
+tr:hover { background: #f9fbfd; }
+
+/* Buttons */
+.btn {
+  padding: 8px 18px; border-radius: 8px; border: none; font-size: 13px;
+  font-weight: 600; cursor: pointer; transition: all 0.15s; font-family: inherit;
+}
+.btn:active { transform: scale(0.97); }
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover { background: var(--primary-deep); }
+.btn-success { background: var(--green); color: #fff; }
+.btn-danger { background: var(--red); color: #fff; }
+.btn-danger:hover { background: #c53520; }
+.btn-outline { background: transparent; border: 1.5px solid var(--border); color: var(--text); }
+.btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+.btn-sm { padding: 5px 12px; font-size: 12px; }
+.btn-group { display: flex; gap: 8px; }
+
+/* Badge */
+.badge { font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 600; }
+.badge-green { background: #e6f7ed; color: #2a8e57; }
+.badge-gold { background: #fff7e6; color: #d48806; }
+.badge-red { background: #fde8e6; color: #e8432d; }
+.badge-gray { background: #f5f5f5; color: #999; }
+.badge-blue { background: #e8f6fc; color: #0d7aaa; }
+
+/* Form */
+.form-group { margin-bottom: 16px; }
+.form-label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text); }
+.form-input, .form-select, .form-textarea {
+  width: 100%; padding: 10px 14px; border: 1.5px solid var(--border);
+  border-radius: 8px; font-size: 14px; font-family: inherit;
+  color: var(--text); outline: none; transition: border-color 0.2s;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--primary); }
+.form-textarea { resize: vertical; min-height: 80px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.form-hint { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+/* Modal */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.5); align-items: center; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--card); border-radius: 16px; width: 600px; max-width: 90vw;
+  max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+}
+.modal-header {
+  padding: 20px 24px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.modal-header h3 { font-size: 18px; font-weight: 700; }
+.modal-close {
+  width: 32px; height: 32px; border-radius: 50%; border: none;
+  background: #f5f5f5; cursor: pointer; font-size: 18px;
+  display: flex; align-items: center; justify-content: center;
+}
+.modal-body { padding: 24px; }
+.modal-footer {
+  padding: 16px 24px; border-top: 1px solid var(--border);
+  display: flex; justify-content: flex-end; gap: 10px;
+}
+
+/* Search */
+.search-bar {
+  display: flex; gap: 10px; margin-bottom: 16px; align-items: center;
+}
+.search-bar input {
+  flex: 1; padding: 10px 14px; border: 1.5px solid var(--border);
+  border-radius: 8px; font-size: 14px; font-family: inherit; outline: none;
+}
+.search-bar input:focus { border-color: var(--primary); }
+
+/* Empty */
+.empty-state {
+  text-align: center; padding: 40px; color: var(--text-muted);
+}
+.empty-state .icon { font-size: 40px; margin-bottom: 12px; opacity: 0.4; }
+
+/* Tag list */
+.tag-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag {
+  background: #f5f5f5; padding: 4px 10px; border-radius: 6px;
+  font-size: 12px; display: flex; align-items: center; gap: 4px;
+}
+.tag .remove { cursor: pointer; color: #999; font-size: 14px; }
+.tag .remove:hover { color: var(--red); }
+
+/* Timeline items in modal */
+.timeline-editor { margin-top: 10px; }
+.timeline-edit-item {
+  background: #f9fbfd; border-radius: 8px; padding: 12px; margin-bottom: 10px;
+  border: 1px solid #eee; position: relative;
+}
+.timeline-edit-item .remove-btn {
+  position: absolute; top: 8px; right: 8px; background: none;
+  border: none; cursor: pointer; font-size: 16px; color: #ccc;
+}
+.timeline-edit-item .remove-btn:hover { color: var(--red); }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .sidebar { width: 60px; }
+  .sidebar-logo span, .nav-item span:not(.icon), .sidebar-footer { display: none; }
+  .nav-item { justify-content: center; padding: 12px; }
+  .main { margin-left: 60px; }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .form-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <div class="sidebar-logo">默元<span>管理后台</span></div>
+  <div class="sidebar-nav">
+    <div class="nav-item active" onclick="showSection('dashboard')">
+      <span class="icon">📊</span><span>数据概览</span>
+    </div>
+    <div class="nav-item" onclick="showSection('tours')">
+      <span class="icon">🗺️</span><span>线路管理</span>
+    </div>
+    <div class="nav-item" onclick="showSection('categories')">
+      <span class="icon">📂</span><span>路线分类</span>
+    </div>
+    <div class="nav-item" onclick="showSection('orders')">
+      <span class="icon">📋</span><span>订单管理</span>
+    </div>
+    <div class="nav-item" onclick="showSection('cities')">
+      <span class="icon">🏙️</span><span>城市管理</span>
+    </div>
+    <div class="nav-item" onclick="showSection('data')">
+      <span class="icon">💾</span><span>数据备份</span>
+    </div>
+    <div class="nav-item" onclick="showSection('contact')">
+      <span class="icon">📞</span><span>联系设置</span>
+    </div>
+  </div>
+  <div class="sidebar-footer">默元旅游 © 2026</div>
+</div>
+
+<!-- Main Content -->
+<div class="main">
+
+  <!-- ═══ Dashboard ═══ -->
+  <div id="sec-dashboard" class="section-content">
+    <div class="page-header">
+      <h2>📊 数据概览</h2>
+      <p>实时查看平台运营数据</p>
+    </div>
+    <div class="stats-grid" id="stats-grid"></div>
+    <div class="card">
+      <div class="card-header"><h3>最近订单</h3></div>
+      <div class="card-body">
+        <table>
+          <thead><tr><th>订单号</th><th>行程</th><th>出发日期</th><th>人数</th><th>金额</th><th>状态</th></tr></thead>
+          <tbody id="recent-orders"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Tours ═══ -->
+  <div id="sec-tours" class="section-content" style="display:none;">
+    <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;">
+      <div><h2>🗺️ 线路管理</h2><p>管理所有旅游线路信息</p></div>
+      <button class="btn btn-primary" onclick="openTourModal()">+ 新增线路</button>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <table>
+          <thead><tr><th>线路名称</th><th>分类</th><th>标签</th><th>主题</th><th>天数</th><th>价格</th><th>操作</th></tr></thead>
+          <tbody id="tours-table"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Categories ═══ -->
+  <div id="sec-categories" class="section-content" style="display:none;">
+    <div class="page-header">
+      <h2>📂 路线分类</h2>
+      <p>管理首页路线的大类别分组（热门路线 / 近郊精品路线）</p>
+    </div>
+    <div id="categories-container" style="display:grid;grid-template-columns:1fr 1fr;gap:20px;"></div>
+    <div class="card" style="margin-top:20px;">
+      <div class="card-header"><h3>添加新分类</h3></div>
+      <div class="card-body" style="display:flex;gap:10px;align-items:flex-end;">
+        <div class="form-group" style="flex:1;margin-bottom:0;">
+          <label class="form-label">分类名称</label>
+          <input class="form-input" id="new-cat-name" placeholder="如：周末特惠">
+        </div>
+        <button class="btn btn-primary" onclick="addCategory()" style="height:38px;">添加分类</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Orders ═══ -->
+  <div id="sec-orders" class="section-content" style="display:none;">
+    <div class="page-header">
+      <h2>📋 订单管理</h2><p>查看和管理所有客户订单</p>
+    </div>
+    <div class="search-bar">
+      <input type="text" id="order-search" placeholder="搜索订单号、姓名、手机号..." oninput="renderOrdersTable()">
+      <select id="order-status-filter" class="form-select" style="width:auto;" onchange="renderOrdersTable()">
+        <option value="">全部状态</option>
+        <option value="confirmed">已确认</option>
+        <option value="pending">待确认</option>
+        <option value="cancelled">已取消</option>
+      </select>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <table>
+          <thead><tr><th>订单号</th><th>行程</th><th>出发城市</th><th>出发日期</th><th>人数</th><th>金额</th><th>联系人</th><th>电话</th><th>状态</th><th>操作</th></tr></thead>
+          <tbody id="orders-table"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Cities ═══ -->
+  <div id="sec-cities" class="section-content" style="display:none;">
+    <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;">
+      <div><h2>🏙️ 城市管理</h2><p>管理出发城市及线路分配</p></div>
+      <button class="btn btn-primary" onclick="openCityModal()">+ 新增城市</button>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <table>
+          <thead><tr><th>城市名称</th><th>出发站点</th><th>地址</th><th>可用线路</th><th>操作</th></tr></thead>
+          <tbody id="cities-table"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Data ═══ -->
+  <div id="sec-data" class="section-content" style="display:none;">
+    <div class="page-header">
+      <h2>💾 数据备份</h2><p>导出或导入所有平台数据</p>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+      <div class="card">
+        <div class="card-header"><h3>导出数据</h3></div>
+        <div class="card-body">
+          <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">将所有线路、订单、城市数据导出为JSON文件</p>
+          <button class="btn btn-primary" onclick="exportData()">📥 导出全部数据</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3>导入数据</h3></div>
+        <div class="card-body">
+          <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">从JSON文件恢复数据（会覆盖当前数据）</p>
+          <input type="file" id="import-file" accept=".json" style="margin-bottom:12px;">
+          <br>
+          <button class="btn btn-danger" onclick="importData()">📤 导入数据</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:20px;">
+      <div class="card-header"><h3>⚠️ 危险操作</h3></div>
+      <div class="card-body">
+        <button class="btn btn-danger" onclick="clearAllOrders()">清空所有订单</button>
+        <span style="font-size:12px;color:#999;margin-left:12px;">此操作不可恢复</span>
+      </div>
+    </div>
+  </div>
+
+  </div>
+
+<!-- ═══ Contact Settings ═══ -->
+<div id="sec-contact" class="section-content" style="display:none;">
+  <div class="page-header">
+    <h2>📞 联系设置</h2>
+  </div>
+  <div class="card">
+    <div class="card-header"><h3>联系方式</h3></div>
+    <div class="card-body">
+      <div class="form-group">
+        <label class="form-label">客服电话</label>
+        <input class="form-input" id="set-phone" type="tel" placeholder="如：18961225552">
+      </div>
+      <div class="form-group">
+        <label class="form-label">公司地址</label>
+        <input class="form-input" id="set-address" placeholder="如：常州市金坛区南洲里颐养中心">
+      </div>
+      <button class="btn btn-primary" onclick="saveContactSettings()">💾 保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Tour Modal ═══ -->
+<div class="modal-overlay" id="tour-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="tour-modal-title">新增线路</h3>
+      <button class="modal-close" onclick="closeTourModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="tm-id">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">线路ID（英文标识）</label>
+          <input class="form-input" id="tm-key" placeholder="如：beijing">
+          <div class="form-hint">仅英文小写，用于内部标识</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">线路名称</label>
+          <input class="form-input" id="tm-title" placeholder="如：畅游京城 · 银发之旅">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">副标题</label>
+          <input class="form-input" id="tm-sub" placeholder="如：5天4晚 | 高铁往返 | 全程膳食">
+        </div>
+        <div class="form-group">
+          <label class="form-label">主题色</label>
+          <select class="form-select" id="tm-theme">
+            <option value="sky">蓝色 (sky)</option>
+            <option value="green">绿色 (green)</option>
+            <option value="warm">暖色 (warm)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">所属分类</label>
+          <select class="form-select" id="tm-category"></select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">卡片标签（每行一个，如：纯玩0购物）</label>
+        <textarea class="form-textarea" id="tm-badges" rows="3" placeholder="高铁往返&#10;四星酒店&#10;全程膳食&#10;3月/4月出发&#10;纯玩0购物"></textarea>
+        <div class="form-hint">显示在首页线路卡片上的标签</div>
+      </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">价格（元/人）</label>
+          <input class="form-input" id="tm-price" type="number" placeholder="如：3980">
+        </div>
+        <div class="form-group">
+          <label class="form-label">价格标签</label>
+          <input class="form-input" id="tm-priceLabel" placeholder="如：¥3,980/人">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">出发日期（每行一个）</label>
+        <textarea class="form-textarea" id="tm-dates" placeholder="2026年3月1日&#10;2026年3月8日&#10;2026年7月4日"></textarea>
+      </div>
+
+      <h4 style="margin:16px 0 8px;font-size:14px;">轮播图片</h4>
+      <div id="tm-images-list"></div>
+      <div style="margin-top:8px;display:flex;gap:8px;">
+        <button class="btn btn-outline btn-sm" onclick="addImageItem()">+ 添加图片URL</button>
+        <label class="btn btn-outline btn-sm" style="cursor:pointer;">+ 上传本地图片<input type="file" accept="image/*" style="display:none;" onchange="addImageFromUpload(this)"></label>
+      </div>
+
+      <h4 style="margin:16px 0 8px;font-size:14px;">行程安排</h4>
+      <div id="tm-timeline-list"></div>
+      <button class="btn btn-outline btn-sm" onclick="addTimelineItem()" style="margin-top:8px;">+ 添加行程</button>
+
+      <h4 style="margin:16px 0 8px;font-size:14px;">费用包含</h4>
+      <div id="tm-includes-list"></div>
+      <button class="btn btn-outline btn-sm" onclick="addIncludeItem()" style="margin-top:8px;">+ 添加项目</button>
+
+      <h4 style="margin:16px 0 8px;font-size:14px;">注意事项</h4>
+      <div id="tm-tips-list"></div>
+      <button class="btn btn-outline btn-sm" onclick="addTipItem()" style="margin-top:8px;">+ 添加注意事项</button>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeTourModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveTour()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ City Modal ═══ -->
+<div class="modal-overlay" id="city-modal">
+  <div class="modal" style="width:480px;">
+    <div class="modal-header">
+      <h3 id="city-modal-title">新增城市</h3>
+      <button class="modal-close" onclick="closeCityModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="cm-edit-key">
+      <div class="form-group">
+        <label class="form-label">城市名称</label>
+        <input class="form-input" id="cm-name" placeholder="如：常州金坛">
+      </div>
+      <div class="form-group">
+        <label class="form-label">出发站点</label>
+        <input class="form-input" id="cm-station" placeholder="如：金坛高铁站">
+      </div>
+      <div class="form-group">
+        <label class="form-label">集散中心地址</label>
+        <input class="form-input" id="cm-address" placeholder="如：常州市金坛区南洲里颐养中心">
+      </div>
+      <div class="form-group">
+        <label class="form-label">可用线路（勾选）</label>
+        <div id="cm-tours-checkbox"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeCityModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveCity()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Order Detail Modal ═══ -->
+<div class="modal-overlay" id="order-detail-modal">
+  <div class="modal" style="width:480px;">
+    <div class="modal-header">
+      <h3>订单详情</h3>
+      <button class="modal-close" onclick="document.getElementById('order-detail-modal').classList.remove('open')">×</button>
+    </div>
+    <div class="modal-body" id="order-detail-body"></div>
+  </div>
+</div>
+
+<script>
+// ── Default Data ──
+const defaultTours = {
+  beijing: {
+    title:'畅游京城 · 银发之旅', sub:'5天4晚 | 高铁往返 | 全程膳食', theme:'sky',
+    price:3980, priceLabel:'¥3,980/人',
+    dates:['2026年3月1日','2026年3月8日','2026年3月15日','2026年3月22日','2026年7月4日','2026年7月11日','2026年7月18日','2026年7月25日','2026年8月1日','2026年8月8日','2026年8月15日','2026年8月22日'],
+    badges:['高铁往返','四星酒店','全程膳食','3月/4月出发','纯玩0购物'],
+    timeline:[
+      {day:'第一天',title:'抵京 · 前门大街漫步',desc:'乘坐高铁二等座抵达北京，入住精选四星酒店。下午漫步前门大街，傍晚前往老舍茶馆，听京剧、品香茗，开启京城慢游之旅。',tags:['前门大街','老舍茶馆','京剧体验']},
+      {day:'第二天',title:'天安门广场 · 故宫中轴线深度游',desc:'上午游览天安门广场，感受首都的历史厚重。下午深度游览故宫，沿中轴线漫步，午后小憩，静享皇城的宁静时光。',tags:['天安门','故宫','中轴线']},
+      {day:'第三天',title:'恭王府"摸福字碑" · 颐和园游船',desc:'上午游览恭王府，亲手触摸"福字碑"，祈福纳祥。下午颐和园游船，沿长廊漫步，水上观山，感受皇家园林的绝美风光。',tags:['恭王府','摸福字碑','颐和园','游船']},
+      {day:'第四天',title:'天坛祈年殿 · 什刹海胡同游',desc:'上午祭拜天坛祈年殿，感受古代皇家文化。下午乘三轮车悠然游什刹海胡同，聆听老北京故事，品尝地道小吃。',tags:['天坛','祈年殿','什刹海','胡同文化']},
+      {day:'第五天',title:'北海公园 · 温暖返程',desc:'上午游览北海公园，重温经典老歌"让我们荡起双桨"，感受岁月静好。午后乘高铁返回，圆满结束此次京城之旅。',tags:['北海公园','温暖返程']}
+    ],
+    includes:[
+      {icon:'🚄',title:'高铁往返（二等座）',desc:'车费已含在内，全程舒适安心。'},
+      {icon:'🏨',title:'四晚四星酒店住宿',desc:'精选舒适四星酒店，双人标准间，含每日早餐。'},
+      {icon:'🍽️',title:'全程餐食',desc:'含每日早餐及含特色餐的午晚餐。'},
+      {icon:'🎫',title:'所有景点门票及体验',desc:'行程所列所有景点门票及参观体验费用全部包含。'},
+      {icon:'👨‍⚕️',title:'专业健康管家服务',desc:'资深导游+专属健康管家全程随行。'},
+      {icon:'🛡️',title:'高额旅游意外保险',desc:'为每位团员购买旅游意外险。'},
+      {icon:'🚌',title:'定点接送',desc:'提供高铁站定点接送服务。'}
+    ],
+    tips:[
+      {icon:'👴',title:'适合人群',desc:'60-80岁身体健康的老年朋友，需能独立行走。'},
+      {icon:'💊',title:'随身药品',desc:'请携带个人常用药物，如有慢性病请提前告知领队。'},
+      {icon:'👟',title:'穿着建议',desc:'以舒适为主，建议穿运动鞋或平底鞋。'},
+      {icon:'📱',title:'保持联系',desc:'出行前请将领队电话存入手机。'}
+    ],
+    images:[]
+  },
+  jiangxi: {
+    title:'海昏探秘 · 赣鄱山水', sub:'5天4晚 | 舒适大巴 | 特色餐食', theme:'green',
+    price:2980, priceLabel:'¥2,980/人',
+    dates:['2026年3月1日','2026年3月15日','2026年4月5日','2026年4月12日','2026年7月4日','2026年7月11日','2026年7月18日','2026年7月25日','2026年8月1日','2026年8月8日','2026年8月15日','2026年8月22日'],
+    badges:['大巴往返','精品酒店','全程膳食','3月/4月出发','纯玩0购物'],
+    timeline:[
+      {day:'第一天',title:'金坛→南昌 · 英雄城初印象',desc:'早出发前往南昌，游览万寿宫历史文化街区。傍晚步行赣江南岸，远眺滕王阁。',tags:['万寿宫','赣江','滕王阁']},
+      {day:'第二天',title:'南昌→九江 · 穿越千年对话',desc:'上午探访海昏侯遗址博物馆。下午前往东林大佛，净心之旅。',tags:['海昏侯遗址','东林大佛','净心']},
+      {day:'第三天',title:'九江→景德镇 · 庐山云雾',desc:'上午游庐山，望秀峰登花径品琵琶亭。下午赴南湖河文创园夜游。',tags:['庐山','花径','南湖河文创']},
+      {day:'第四天',title:'景德镇→婺源 · 千年窑梦',desc:'上午走进古窑民俗博物馆。下午前往篁岭，傍晚欣赏婺女洲实景演出。',tags:['古窑博物馆','篁岭','婺女洲演出']},
+      {day:'第五天',title:'婺源→返程 · 满载而归',desc:'上午漫步篁岭晒秋。午后踏上返程，圆满归来。',tags:['篁岭晒秋','古民居','温馨返程']}
+    ],
+    includes:[
+      {icon:'🚌',title:'全程舒适大巴',desc:'精选舒适空调大巴，专业司机驾驶。'},
+      {icon:'🏨',title:'四晚精品酒店住宿',desc:'精选当地优质酒店，含每日早餐。'},
+      {icon:'🍽️',title:'全程特色餐食',desc:'品尝赣菜、徽菜正宗风味。'},
+      {icon:'🎫',title:'所有景点门票',desc:'所有景点门票全含。'},
+      {icon:'👨‍⚕️',title:'专属健康管家服务',desc:'全程健康管家随行。'},
+      {icon:'🛡️',title:'旅游意外保险',desc:'出行无忧。'},
+      {icon:'🚌',title:'出发接送',desc:'提供集散点定点接送。'}
+    ],
+    tips:[
+      {icon:'👴',title:'适合人群',desc:'60-80岁身体健康的老年朋友，需能独立行走。'},
+      {icon:'💊',title:'随身药品',desc:'请携带个人常用药物，如有慢性病请提前告知领队。'},
+      {icon:'👟',title:'穿着建议',desc:'以舒适为主，建议穿运动鞋或平底鞋。'},
+      {icon:'📱',title:'保持联系',desc:'出行前请将领队电话存入手机。'}
+    ],
+    images:[]
+  },
+  jiangnan: {
+    title:'两日江南 · 南浔双林古镇', sub:'2天1晚 | 旅游大巴 | 地道餐食', theme:'warm',
+    price:499, priceLabel:'¥499/人',
+    dates:['2026年3月8日','2026年3月22日','2026年4月5日','2026年4月19日','2026年5月3日','2026年7月4日','2026年7月11日','2026年7月18日','2026年7月25日','2026年8月1日','2026年8月8日','2026年8月15日','2026年8月22日'],
+    badges:['大巴往返','精品民宿','地道餐食','3月/4月出发','纯玩0购物'],
+    timeline:[
+      {day:'Day1 上午',title:'出发 · 漫游双林古桥秘境',desc:'08:30出发，13:30抵达双林古镇，逛老街、蔡宅、绫绢工坊。',tags:['双林古镇','绫绢非遗','百年蔡宅']},
+      {day:'Day1 下午',title:'三桥日落 · 夜游南浔',desc:'16:00双林三桥等候日落。19:00夜游南浔，赏水乡灯火。',tags:['双林三桥','日落金影','夜游南浔']},
+      {day:'Day2 上午',title:'深度南浔 · 丝商风雅',desc:'游览百间楼，打卡小莲庄、嘉业藏书楼、张石铭故居。',tags:['小莲庄','嘉业藏书楼','张石铭故居']},
+      {day:'Day2 下午',title:'美食购物 · 满载而归',desc:'品尝古镇特色美食，采购伴手礼，温馨返程。',tags:['特色美食','伴手礼','温馨返程']}
+    ],
+    includes:[
+      {icon:'🚌',title:'全程旅游大巴',desc:'舒适空调大巴全程接送。'},
+      {icon:'🏨',title:'一晚精品民宿/酒店',desc:'南浔古镇内精选住宿。'},
+      {icon:'🍽️',title:'地道午餐、晚餐',desc:'品尝正宗太湖水乡特色菜肴。'},
+      {icon:'🎫',title:'双林古镇+南浔景区门票',desc:'含全程景点门票。'},
+      {icon:'👨‍⚕️',title:'全程导游服务',desc:'资深导游讲解。'},
+      {icon:'🛡️',title:'旅游意外保险',desc:'全程保障。'}
+    ],
+    tips:[
+      {icon:'👴',title:'适合人群',desc:'60-80岁身体健康的老年朋友，需能独立行走。'},
+      {icon:'💊',title:'随身药品',desc:'请携带个人常用药物，如有慢性病请提前告知领队。'},
+      {icon:'👟',title:'穿着建议',desc:'以舒适为主，建议穿运动鞋或平底鞋。'},
+      {icon:'📱',title:'保持联系',desc:'出行前请将领队电话存入手机。'}
+    ],
+    images:[]
+  },
+  tianmuhu: {
+    title:'大觉寺 · 天目湖一日游', sub:'1天 | 旅游大巴 | 禅意+湖鲜+山水', theme:'sky',
+    price:199, priceLabel:'¥199/人（55岁以下加55元）',
+    dates:['2026年3月5日','2026年3月12日','2026年3月19日','2026年3月26日','2026年4月2日','2026年4月9日','2026年4月16日','2026年7月2日','2026年7月9日','2026年7月16日','2026年7月23日','2026年7月30日','2026年8月6日','2026年8月13日','2026年8月20日','2026年8月27日'],
+    badges:['大巴往返','含鱼头午宴','3月/4月出发','纯玩0购物'],
+    timeline:[
+      {day:'上午 09:00-11:30',title:'游览大觉寺 · 禅意静心祈福',desc:'游览大觉寺，瞻仰星云大师祖庭。参观大雄宝殿、菩提广场、佛光楼。',tags:['大觉寺','星云大师祖庭','禅意祈福']},
+      {day:'中午 12:00-13:30',title:'天目湖砂锅鱼头宴 · 地道湖鲜',desc:'品尝非遗天目湖砂锅鱼头，汤色奶白、鲜醇无腥。',tags:['砂锅鱼头','天目湖特色','溧阳美食']},
+      {day:'下午 13:30-16:00',title:'天目湖山水园 · 人在画中游',desc:'环湖赏景，乘船体验人在画中游，饱览天目湖湖光山色。',tags:['天目湖山水园','环湖赏景','游船体验']}
+    ],
+    includes:[
+      {icon:'🚌',title:'旅游大巴全程接送',desc:'舒适空调大巴直达景区。'},
+      {icon:'🍽️',title:'天目湖砂锅鱼头午宴',desc:'正宗天目湖非遗砂锅鱼头。'},
+      {icon:'🎫',title:'大觉寺+天目湖山水园门票',desc:'全程景点门票已含。'},
+      {icon:'👨‍⚕️',title:'全程导游+护士+管家',desc:'专业讲解，护士随行。'},
+      {icon:'🛡️',title:'旅行社责任险+人身意外险',desc:'双重保险保障。'}
+    ],
+    tips:[
+      {icon:'👴',title:'适合人群',desc:'60-80岁身体健康的老年朋友，需能独立行走。'},
+      {icon:'💊',title:'随身药品',desc:'请携带个人常用药物，如有慢性病请提前告知领队。'},
+      {icon:'👟',title:'穿着建议',desc:'以舒适为主，建议穿运动鞋或平底鞋。'},
+      {icon:'📱',title:'保持联系',desc:'出行前请将领队电话存入手机。'}
+    ],
+    images:[]
+  },
+  yaohuzhen: {
+    title:'窑湖小镇 · 纯玩一日游', sub:'1天 | 空调旅游车 | 陶文化体验', theme:'green',
+    price:129, priceLabel:'¥129/人（不满70周岁另交30元）',
+    dates:['2026年3月7日','2026年3月14日','2026年3月21日','2026年3月28日','2026年4月4日','2026年4月11日','2026年4月18日','2026年7月4日','2026年7月11日','2026年7月18日','2026年7月25日','2026年8月1日','2026年8月8日','2026年8月15日','2026年8月22日'],
+    badges:['大巴往返','含午餐','3月/4月出发','纯玩0购物'],
+    timeline:[
+      {day:'07:30',title:'出发 · 西城街道养老服务中心',desc:'准时出发，乘坐空调旅游车前往宜兴，全程约1.5小时。',tags:['西城街道出发','空调旅游车']},
+      {day:'09:00',title:'宜兴陶二厂 · 陶文化艺术探索',desc:'集陶文化、艺术展览与商业消费于一体，感受千年紫砂魅力。',tags:['陶二厂','紫砂文化','艺术展览']},
+      {day:'11:00',title:'窑湖小镇园区用餐',desc:'享用午餐，品尝当地特色美食。',tags:['园区午餐','特色美食']},
+      {day:'12:00',title:'乘小火车入园游玩 · 窑湖江南',desc:'乘坐特色小火车穿越窑湖小镇，一步一景。',tags:['小火车','窑湖小镇','江南风情']},
+      {day:'16:00',title:'返程 · 满载而归',desc:'结束游览，乘车返回。',tags:['温馨返程']}
+    ],
+    includes:[
+      {icon:'🚌',title:'空调旅游车全程接送',desc:'全程舒适空调车。'},
+      {icon:'🍽️',title:'一顿午餐',desc:'地道宜兴风味。'},
+      {icon:'🎫',title:'陶二厂+窑湖小镇门票',desc:'含小火车票及门票。'},
+      {icon:'👨‍⚕️',title:'全程导游+护士+社工',desc:'三重随行保障。'},
+      {icon:'🛡️',title:'旅行社责任险+人身意外险',desc:'双重保险全程保障。'}
+    ],
+    tips:[
+      {icon:'👴',title:'适合人群',desc:'60-80岁身体健康的老年朋友，需能独立行走。'},
+      {icon:'💊',title:'随身药品',desc:'请携带个人常用药物，如有慢性病请提前告知领队。'},
+      {icon:'👟',title:'穿着建议',desc:'以舒适为主，建议穿运动鞋或平底鞋。'},
+      {icon:'📱',title:'保持联系',desc:'出行前请将领队电话存入手机。'}
+    ],
+    images:[]
+  }
+};
+
+const defaultCityData = {
+  '常州金坛':{station:'金坛高铁站',address:'常州市金坛区南洲里颐养中心'},
+  '常州市区':{station:'常州高铁站',address:'常州市钟楼区集散中心'},
+  '无锡':{station:'无锡东站',address:'无锡市集散中心'},
+  '南京':{station:'南京南站',address:'南京市集散中心'},
+  '苏州':{station:'苏州高铁北站',address:'苏州市集散中心'},
+  '北京':{station:'北京南站',address:'北京市集散中心'},
+};
+
+const defaultCityTours = {
+  '常州金坛':['beijing','jiangxi','jiangnan','tianmuhu','yaohuzhen'],
+  '常州市区':['beijing','jiangxi','jiangnan','tianmuhu','yaohuzhen'],
+  '无锡':['beijing','jiangxi','jiangnan','tianmuhu','yaohuzhen'],
+  '南京':['beijing','jiangxi','jiangnan','tianmuhu','yaohuzhen'],
+  '苏州':['beijing','jiangxi','jiangnan','tianmuhu','yaohuzhen'],
+  '北京':['jiangxi','jiangnan','tianmuhu','yaohuzhen'],
+};
+
+// ── Data helpers ──
+function loadTours() {
+  const d = localStorage.getItem('moyuanTours');
+  return d ? JSON.parse(d) : JSON.parse(JSON.stringify(defaultTours));
+}
+function saveTours(t) { localStorage.setItem('moyuanTours', JSON.stringify(t)); }
+function loadCityData() {
+  const d = localStorage.getItem('moyuanCityData');
+  return d ? JSON.parse(d) : JSON.parse(JSON.stringify(defaultCityData));
+}
+function saveCityData(d) { localStorage.setItem('moyuanCityData', JSON.stringify(d)); }
+function loadCityTours() {
+  const d = localStorage.getItem('moyuanCityTours');
+  return d ? JSON.parse(d) : JSON.parse(JSON.stringify(defaultCityTours));
+}
+function saveCityTours(d) { localStorage.setItem('moyuanCityTours', JSON.stringify(d)); }
+
+// ── Categories ──
+const defaultCategories = {
+  'hot': { name: '热门路线', tours: ['beijing','jiangxi'] },
+  'local': { name: '近郊精品路线', tours: ['jiangnan','tianmuhu','yaohuzhen'] }
+};
+function loadCategories() {
+  const d = localStorage.getItem('moyuanCategories');
+  return d ? JSON.parse(d) : JSON.parse(JSON.stringify(defaultCategories));
+}
+function saveCategories(c) { localStorage.setItem('moyuanCategories', JSON.stringify(c)); }
+
+function loadOrders() {
+  const d = localStorage.getItem('moyuanOrders');
+  return d ? JSON.parse(d) : [];
+}
+function saveOrders(o) { localStorage.setItem('moyuanOrders', JSON.stringify(o)); }
+
+// ── Section Switching ──
+// ── Contact Settings ──
+function loadContactSettings() {
+  try {
+    const saved = localStorage.getItem('moyuanContact');
+    if(saved) {
+      const c = JSON.parse(saved);
+      document.getElementById('set-phone').value = c.phone || '';
+      document.getElementById('set-address').value = c.address || '';
+    }
+  } catch(e) {}
+}
+
+function saveContactSettings() {
+  const phone = document.getElementById('set-phone').value.trim();
+  const address = document.getElementById('set-address').value.trim();
+  if(!phone && !address) { alert('请至少填写一项'); return; }
+  localStorage.setItem('moyuanContact', JSON.stringify({ phone, address }));
+  showToast('联系信息已保存');
+}
+
+function showSection(name) {
+  document.querySelectorAll('.section-content').forEach(s => s.style.display = 'none');
+  document.getElementById('sec-' + name).style.display = 'block';
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  if(name === 'contact') loadContactSettings();
+  if(name === 'dashboard') renderDashboard();
+  if(name === 'tours') renderToursTable();
+  if(name === 'categories') renderCategoriesSection();
+  if(name === 'orders') renderOrdersTable();
+  if(name === 'cities') renderCitiesTable();
+}
+
+// ── Dashboard ──
+function renderDashboard() {
+  const orders = loadOrders();
+  const tours = loadTours();
+  const cities = loadCityData();
+  const totalRevenue = orders.filter(o => o.status !== 'cancelled').reduce((s, o) => s + o.total, 0);
+  const confirmed = orders.filter(o => o.status === 'confirmed').length;
+  const pending = orders.filter(o => o.status === 'pending').length;
+  const cancelled = orders.filter(o => o.status === 'cancelled').length;
+
+  document.getElementById('stats-grid').innerHTML = `
+    <div class="stat-card"><div class="stat-icon blue">📋</div><div class="stat-info"><div class="num">${orders.length}</div><div class="lab">总订单数</div></div></div>
+    <div class="stat-card"><div class="stat-icon green">✅</div><div class="stat-info"><div class="num">${confirmed}</div><div class="lab">已确认</div></div></div>
+    <div class="stat-card"><div class="stat-icon gold">⏳</div><div class="stat-info"><div class="num">${pending}</div><div class="lab">待确认</div></div></div>
+    <div class="stat-card"><div class="stat-icon red">💰</div><div class="stat-info"><div class="num">¥${totalRevenue.toLocaleString()}</div><div class="lab">总收入（已确认）</div></div></div>
+  `;
+
+  const recent = orders.slice(0, 8);
+  if(recent.length === 0) {
+    document.getElementById('recent-orders').innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;padding:30px;">暂无订单</td></tr>';
+    return;
+  }
+  const statusMap = {confirmed:['已确认','badge-green'],pending:['待确认','badge-gold'],cancelled:['已取消','badge-gray']};
+  document.getElementById('recent-orders').innerHTML = recent.map(o => {
+    const st = statusMap[o.status] || ['未知','badge-gray'];
+    return `<tr>
+      <td><strong style="color:var(--primary)">${o.id}</strong></td>
+      <td>${o.tourTitle}</td>
+      <td>${o.date}</td>
+      <td>${o.people}人</td>
+      <td style="font-weight:600;">¥${o.total.toLocaleString()}</td>
+      <td><span class="badge ${st[1]}">${st[0]}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+// ── Tours ──
+function renderToursTable() {
+  const tours = loadTours();
+  const cats = loadCategories();
+  const daysMap = { beijing:5, jiangxi:5, jiangnan:2, tianmuhu:1, yaohuzhen:1 };
+  const themeMap = {sky:'蓝色',green:'绿色',warm:'暖色'};
+  document.getElementById('tours-table').innerHTML = Object.entries(tours).map(([id, t]) => {
+    const days = t.timeline ? t.timeline.length : (daysMap[id] || '?');
+    // 找到分类名
+    let catName = '未分类';
+    Object.values(cats).forEach(function(cat) {
+      if(cat.tours.includes(id)) catName = cat.name;
+    });
+    return `<tr>
+      <td><strong>${t.title}</strong></td>
+      <td><span class="badge badge-blue">${catName}</span></td>
+      <td style="max-width:200px;">${(t.badges||[]).map(b=>'<span class="badge badge-blue" style="margin:1px;">'+b+'</span>').join('')}</td>
+      <td><span class="badge badge-blue">${themeMap[t.theme]||t.theme}</span></td>
+      <td>${days}天</td>
+      <td style="font-weight:600;color:var(--red);">¥${t.price.toLocaleString()}</td>
+      <td class="btn-group">
+        <button class="btn btn-outline btn-sm" onclick="editTour('${id}')">编辑</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteTour('${id}')">删除</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+let timelineItems = [];
+let includeItems = [];
+
+function openTourModal(tourId) {
+  document.getElementById('tour-modal').classList.add('open');
+  // 填充分类下拉
+  const cats = loadCategories();
+  const catSelect = document.getElementById('tm-category');
+  catSelect.innerHTML = '<option value="">未分类</option>' + Object.entries(cats).map(([id, cat]) => '<option value="'+id+'">'+cat.name+'</option>').join('');
+  if(tourId) {
+    const tours = loadTours();
+    const t = tours[tourId];
+    document.getElementById('tour-modal-title').textContent = '编辑线路';
+    document.getElementById('tm-id').value = tourId;
+    document.getElementById('tm-key').value = tourId;
+    document.getElementById('tm-key').disabled = true;
+    document.getElementById('tm-title').value = t.title;
+    document.getElementById('tm-sub').value = t.sub;
+    document.getElementById('tm-theme').value = t.theme;
+    // 找到该线路所属分类
+    let tourCatId = '';
+    Object.entries(cats).forEach(([id, cat]) => {
+      if(cat.tours.includes(tourId)) tourCatId = id;
+    });
+    catSelect.value = tourCatId;
+    document.getElementById('tm-price').value = t.price;
+    document.getElementById('tm-badges').value = (t.badges||[]).join('\n');
+    document.getElementById('tm-priceLabel').value = t.priceLabel;
+    document.getElementById('tm-dates').value = (t.dates||[]).join('\n');
+    timelineItems = JSON.parse(JSON.stringify(t.timeline || []));
+    includeItems = JSON.parse(JSON.stringify(t.includes || []));
+    imageItems = JSON.parse(JSON.stringify(t.images || []));
+    tipItems = JSON.parse(JSON.stringify(t.tips || []));
+  } else {
+    document.getElementById('tour-modal-title').textContent = '新增线路';
+    document.getElementById('tm-id').value = '';
+    document.getElementById('tm-key').value = '';
+    document.getElementById('tm-key').disabled = false;
+    document.getElementById('tm-title').value = '';
+    document.getElementById('tm-sub').value = '';
+    document.getElementById('tm-theme').value = 'sky';
+    document.getElementById('tm-price').value = '';
+    document.getElementById('tm-priceLabel').value = '';
+    document.getElementById('tm-dates').value = '';
+    document.getElementById('tm-badges').value = '';
+    timelineItems = [];
+    includeItems = [];
+    imageItems = [];
+    tipItems = [];
+  }
+  renderTimelineEditor();
+  renderIncludesEditor();
+  renderTipsEditor();
+  renderImagesEditor();
+}
+
+function closeTourModal() { document.getElementById('tour-modal').classList.remove('open'); }
+
+function editTour(id) { openTourModal(id); }
+
+function deleteTour(id) {
+  if(!confirm('确定删除该线路吗？')) return;
+  const tours = loadTours();
+  delete tours[id];
+  saveTours(tours);
+  // 从所有城市的可用线路中移除
+  const ct = loadCityTours();
+  Object.keys(ct).forEach(function(city) {
+    ct[city] = ct[city].filter(function(t){ return t !== id; });
+  });
+  saveCityTours(ct);
+  renderToursTable();
+}
+
+function renderTimelineEditor() {
+  document.getElementById('tm-timeline-list').innerHTML = timelineItems.map((item, i) => `
+    <div class="timeline-edit-item">
+      <button class="remove-btn" onclick="timelineItems.splice(${i},1);renderTimelineEditor()">×</button>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">时间段</label>
+          <input class="form-input" value="${item.day}" onchange="timelineItems[${i}].day=this.value" placeholder="如：第一天">
+        </div>
+        <div class="form-group">
+          <label class="form-label">标题</label>
+          <input class="form-input" value="${item.title}" onchange="timelineItems[${i}].title=this.value" placeholder="如：天安门广场">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">描述</label>
+        <textarea class="form-textarea" onchange="timelineItems[${i}].desc=this.value" placeholder="行程描述">${item.desc||''}</textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">标签（逗号分隔）</label>
+        <input class="form-input" value="${(item.tags||[]).join(',')}" onchange="timelineItems[${i}].tags=this.value.split(',').map(s=>s.trim()).filter(Boolean)" placeholder="如：天安门,故宫,中轴线">
+      </div>
+    </div>
+  `).join('');
+}
+
+function addTimelineItem() {
+  timelineItems.push({day:'',title:'',desc:'',tags:[]});
+  renderTimelineEditor();
+}
+
+function renderIncludesEditor() {
+  document.getElementById('tm-includes-list').innerHTML = includeItems.map((item, i) => `
+    <div class="timeline-edit-item">
+      <button class="remove-btn" onclick="includeItems.splice(${i},1);renderIncludesEditor()">×</button>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">图标</label>
+          <input class="form-input" value="${item.icon}" onchange="includeItems[${i}].icon=this.value" placeholder="如：🚄">
+        </div>
+        <div class="form-group">
+          <label class="form-label">标题</label>
+          <input class="form-input" value="${item.title}" onchange="includeItems[${i}].title=this.value" placeholder="如：高铁往返">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">描述</label>
+        <input class="form-input" value="${item.desc}" onchange="includeItems[${i}].desc=this.value" placeholder="费用包含描述">
+      </div>
+    </div>
+  `).join('');
+}
+
+function addIncludeItem() {
+  includeItems.push({icon:'',title:'',desc:''});
+  renderIncludesEditor();
+}
+
+// ── Tips Editor ──
+let tipItems = [];
+
+function renderTipsEditor() {
+  document.getElementById('tm-tips-list').innerHTML = tipItems.map((item, i) => `
+    <div class="timeline-edit-item">
+      <button class="remove-btn" onclick="tipItems.splice(${i},1);renderTipsEditor()">×</button>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">图标</label>
+          <input class="form-input" value="${item.icon}" onchange="tipItems[${i}].icon=this.value" placeholder="如：👴">
+        </div>
+        <div class="form-group">
+          <label class="form-label">标题</label>
+          <input class="form-input" value="${item.title}" onchange="tipItems[${i}].title=this.value" placeholder="如：适合人群">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">描述</label>
+        <textarea class="form-textarea" onchange="tipItems[${i}].desc=this.value" placeholder="注意事项描述">${item.desc||''}</textarea>
+      </div>
+    </div>
+  `).join('');
+}
+
+function addTipItem() {
+  tipItems.push({icon:'',title:'',desc:''});
+  renderTipsEditor();
+}
+
+let imageItems = [];
+
+function renderImagesEditor() {
+  document.getElementById('tm-images-list').innerHTML = imageItems.map((url, i) => `
+    <div class="timeline-edit-item" style="display:flex;align-items:flex-start;gap:10px;padding:10px;">
+      <button class="remove-btn" onclick="imageItems.splice(${i},1);renderImagesEditor()" style="margin-top:16px;">×</button>
+      <div style="flex:1;">
+        <input class="form-input" value="${url.startsWith('data:') ? '[本地图片]' : url}" ${url.startsWith('data:') ? 'readonly style="background:#f9f9f9;"' : ''} onchange="imageItems[${i}]=this.value;renderImagesEditor()" placeholder="图片URL地址或点击右侧上传本地图片">
+        <div style="font-size:11px;color:#999;margin-top:4px;">${url.startsWith('data:') ? '已上传本地图片（约'+Math.round(url.length/1024)+'KB）' : '填入图片链接地址'}</div>
+      </div>
+      ${url ? '<img src="'+url+'" style="width:80px;height:56px;object-fit:cover;border-radius:6px;border:1px solid #eee;flex-shrink:0;">' : '<div style="width:80px;height:56px;border-radius:6px;border:1px dashed #ddd;display:flex;align-items:center;justify-content:center;color:#999;font-size:11px;flex-shrink:0;">预览</div>'}
+    </div>
+  `).join('');
+}
+
+function addImageItem() {
+  imageItems.push('');
+  renderImagesEditor();
+}
+
+function addImageFromUpload(input) {
+  const file = input.files[0];
+  if(!file) return;
+  if(!file.type.startsWith('image/')) { alert('请选择图片文件'); return; }
+  if(file.size > 10*1024*1024) { alert('图片不能超过10MB'); return; }
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    compressImage(e.target.result, 800, 0.75, function(compressed) {
+      imageItems.push(compressed);
+      renderImagesEditor();
+    });
+  };
+  reader.readAsDataURL(file);
+  input.value = '';
+}
+
+function handleImageUpload(input, index) {
+  const file = input.files[0];
+  if(!file) return;
+  if(!file.type.startsWith('image/')) { alert('请选择图片文件'); return; }
+  if(file.size > 10*1024*1024) { alert('图片不能超过10MB'); return; }
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    // 压缩图片
+    compressImage(e.target.result, 800, 0.75, function(compressed) {
+      imageItems[index] = compressed;
+      renderImagesEditor();
+    });
+  };
+  reader.readAsDataURL(file);
+}
+
+function compressImage(dataUrl, maxDim, quality, callback) {
+  const img = new Image();
+  img.onload = function() {
+    let w = img.width, h = img.height;
+    if(w > maxDim || h > maxDim) {
+      if(w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
+      else { w = Math.round(w * maxDim / h); h = maxDim; }
+    }
+    const canvas = document.createElement('canvas');
+    canvas.width = w;
+    canvas.height = h;
+    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+    callback(canvas.toDataURL('image/jpeg', quality));
+  };
+  img.src = dataUrl;
+}
+
+function saveTour() {
+  const key = document.getElementById('tm-key').value.trim();
+  const title = document.getElementById('tm-title').value.trim();
+  const price = parseInt(document.getElementById('tm-price').value);
+  if(!key || !title || !price) { alert('请填写完整信息'); return; }
+  if(!/^[a-z]+$/.test(key)) { alert('线路ID仅限英文小写字母'); return; }
+
+  const tour = {
+    title: title,
+    sub: document.getElementById('tm-sub').value.trim(),
+    theme: document.getElementById('tm-theme').value,
+    price: price,
+    priceLabel: document.getElementById('tm-priceLabel').value.trim() || '¥' + price.toLocaleString() + '/人',
+    dates: document.getElementById('tm-dates').value.split('\n').map(s=>s.trim()).filter(Boolean),
+    badges: document.getElementById('tm-badges').value.split('\n').map(s=>s.trim()).filter(Boolean),
+    timeline: timelineItems,
+    includes: includeItems,
+    tips: tipItems,
+    images: imageItems.filter(Boolean)
+  };
+
+  const tours = loadTours();
+  tours[key] = tour;
+  // 检查localStorage大小
+  try {
+    const testKey = 'moyuanTours';
+    localStorage.setItem(testKey, JSON.stringify(tours));
+    const size = localStorage.getItem(testKey).length;
+    if(size > 4.5*1024*1024) {
+      alert('⚠️ 数据较大（约'+Math.round(size/1024)+'KB），建议减少图片数量或降低图片质量。');
+    }
+  } catch(e) {
+    alert('保存失败：数据超出存储空间限制，请减少图片数量。');
+    return;
+  }
+  saveTours(tours);
+  // 保存分类归属
+  const catId = document.getElementById('tm-category').value;
+  const cats = loadCategories();
+  // 先从所有分类中移除该线路
+  Object.values(cats).forEach(cat => {
+    cat.tours = cat.tours.filter(t => t !== key);
+  });
+  // 添加到选中的分类
+  if(catId && cats[catId] && !cats[catId].tours.includes(key)) {
+    cats[catId].tours.push(key);
+  }
+  saveCategories(cats);
+  // 自动将新线路加入所有城市
+  if(!Object.keys(defaultTours).includes(key)) {
+    const ct = loadCityTours();
+    Object.keys(ct).forEach(function(city) {
+      if(!ct[city].includes(key)) ct[city].push(key);
+    });
+    saveCityTours(ct);
+  }
+  closeTourModal();
+  renderToursTable();
+}
+
+// ── Orders ──
+function renderOrdersTable() {
+  const orders = loadOrders();
+  const search = (document.getElementById('order-search').value || '').toLowerCase();
+  const statusFilter = document.getElementById('order-status-filter').value;
+  const statusMap = {confirmed:['已确认','badge-green'],pending:['待确认','badge-gold'],cancelled:['已取消','badge-gray']};
+
+  let filtered = orders;
+  if(search) {
+    filtered = filtered.filter(o =>
+      o.id.toLowerCase().includes(search) ||
+      o.name.includes(search) ||
+      o.phone.includes(search)
+    );
+  }
+  if(statusFilter) {
+    filtered = filtered.filter(o => o.status === statusFilter);
+  }
+
+  if(filtered.length === 0) {
+    document.getElementById('orders-table').innerHTML = '<tr><td colspan="10" style="text-align:center;color:#999;padding:30px;">暂无匹配订单</td></tr>';
+    return;
+  }
+
+  const cities = loadCityData();
+  document.getElementById('orders-table').innerHTML = filtered.map((o, i) => {
+    const st = statusMap[o.status] || ['未知','badge-gray'];
+    const cityNames = Object.keys(cities);
+    const orderCity = o.departCity || cityNames[0] || '';
+    return `<tr>
+      <td><strong style="color:var(--primary)">${o.id}</strong></td>
+      <td>${o.tourTitle}</td>
+      <td>${orderCity}</td>
+      <td>${o.date}</td>
+      <td>${o.people}人</td>
+      <td style="font-weight:600;">¥${o.total.toLocaleString()}</td>
+      <td>${o.name}</td>
+      <td>${o.phone}</td>
+      <td><span class="badge ${st[1]}">${st[0]}</span></td>
+      <td class="btn-group">
+        <button class="btn btn-outline btn-sm" onclick="viewOrder('${o.id}')">详情</button>
+        ${o.status !== 'cancelled' ? `<button class="btn btn-danger btn-sm" onclick="adminCancelOrder('${o.id}')">取消</button>` : ''}
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function viewOrder(id) {
+  const orders = loadOrders();
+  const o = orders.find(x => x.id === id);
+  if(!o) return;
+  const statusMap = {confirmed:'已确认',pending:'待确认',cancelled:'已取消'};
+  document.getElementById('order-detail-body').innerHTML = `
+    <table>
+      <tr><td style="width:100px;color:#999;">订单号</td><td><strong style="color:var(--primary)">${o.id}</strong></td></tr>
+      <tr><td style="color:#999;">行程</td><td>${o.tourTitle}</td></tr>
+      <tr><td style="color:#999;">出发日期</td><td>${o.date}</td></tr>
+      <tr><td style="color:#999;">出行人数</td><td>${o.people}人</td></tr>
+      <tr><td style="color:#999;">单价</td><td>¥${o.price.toLocaleString()}/人</td></tr>
+      <tr><td style="color:#999;">合计金额</td><td style="font-weight:700;color:var(--red);font-size:18px;">¥${o.total.toLocaleString()}</td></tr>
+      <tr><td style="color:#999;">联系人</td><td>${o.name}</td></tr>
+      <tr><td style="color:#999;">联系电话</td><td>${o.phone}</td></tr>
+      ${o.note ? `<tr><td style="color:#999;">特殊需求</td><td>${o.note}</td></tr>` : ''}
+      <tr><td style="color:#999;">状态</td><td>${statusMap[o.status]||o.status}</td></tr>
+      <tr><td style="color:#999;">下单时间</td><td>${o.createdAt ? new Date(o.createdAt).toLocaleString('zh-CN') : '—'}</td></tr>
+    </table>
+  `;
+  document.getElementById('order-detail-modal').classList.add('open');
+}
+
+function adminCancelOrder(id) {
+  if(!confirm('确定取消该订单吗？')) return;
+  const orders = loadOrders();
+  const o = orders.find(x => x.id === id);
+  if(o) { o.status = 'cancelled'; saveOrders(orders); renderOrdersTable(); renderDashboard(); }
+}
+
+// ── Cities ──
+function renderCitiesTable() {
+  const cityData = loadCityData();
+  const cityTours = loadCityTours();
+  const tours = loadTours();
+
+  document.getElementById('cities-table').innerHTML = Object.entries(cityData).map(([name, data]) => {
+    const ct = cityTours[name] || [];
+    const tourNames = ct.map(id => tours[id] ? tours[id].title.split('·')[0].trim() : id);
+    return `<tr>
+      <td><strong>${name}</strong></td>
+      <td>${data.station}</td>
+      <td>${data.address}</td>
+      <td>
+        <div class="tag-list">
+          ${tourNames.map(n => `<span class="tag badge-blue">${n}</span>`).join('')}
+          ${tourNames.length === 0 ? '<span style="color:#999;font-size:12px;">暂无线路</span>' : ''}
+        </div>
+      </td>
+      <td class="btn-group">
+        <button class="btn btn-outline btn-sm" onclick="editCity('${name}')">编辑</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteCity('${name}')">删除</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function openCityModal(cityName) {
+  document.getElementById('city-modal').classList.add('open');
+  const tours = loadTours();
+  const cityTours = loadCityTours();
+  const cityData = loadCityData();
+
+  if(cityName) {
+    document.getElementById('city-modal-title').textContent = '编辑城市';
+    document.getElementById('cm-edit-key').value = cityName;
+    document.getElementById('cm-name').value = cityName;
+    document.getElementById('cm-name').disabled = true;
+    document.getElementById('cm-station').value = cityData[cityName]?.station || '';
+    document.getElementById('cm-address').value = cityData[cityName]?.address || '';
+  } else {
+    document.getElementById('city-modal-title').textContent = '新增城市';
+    document.getElementById('cm-edit-key').value = '';
+    document.getElementById('cm-name').value = '';
+    document.getElementById('cm-name').disabled = false;
+    document.getElementById('cm-station').value = '';
+    document.getElementById('cm-address').value = '';
+  }
+
+  const selected = cityName ? (cityTours[cityName] || []) : [];
+  document.getElementById('cm-tours-checkbox').innerHTML = Object.entries(tours).map(([id, t]) => `
+    <label style="display:flex;align-items:center;gap:8px;padding:6px 0;cursor:pointer;font-size:13px;">
+      <input type="checkbox" value="${id}" ${selected.includes(id)?'checked':''}>
+      ${t.title.split('·')[0].trim()}（¥${t.price.toLocaleString()}）
+    </label>
+  `).join('');
+}
+
+function closeCityModal() { document.getElementById('city-modal').classList.remove('open'); }
+
+function editCity(name) { openCityModal(name); }
+
+function deleteCity(name) {
+  if(!confirm(`确定删除"${name}"吗？`)) return;
+  const cityData = loadCityData();
+  const cityTours = loadCityTours();
+  delete cityData[name];
+  delete cityTours[name];
+  saveCityData(cityData);
+  saveCityTours(cityTours);
+  renderCitiesTable();
+}
+
+function saveCity() {
+  const editKey = document.getElementById('cm-edit-key').value;
+  const name = document.getElementById('cm-name').value.trim();
+  const station = document.getElementById('cm-station').value.trim();
+  const address = document.getElementById('cm-address').value.trim();
+  if(!name || !station) { alert('请填写城市名称和站点'); return; }
+
+  const checkedTours = Array.from(document.querySelectorAll('#cm-tours-checkbox input:checked')).map(cb => cb.value);
+
+  const cityData = loadCityData();
+  const cityTours = loadCityTours();
+
+  if(editKey && editKey !== name) {
+    delete cityData[editKey];
+    delete cityTours[editKey];
+  }
+  cityData[name] = { station, address };
+  cityTours[name] = checkedTours;
+
+  saveCityData(cityData);
+  saveCityTours(cityTours);
+  closeCityModal();
+  renderCitiesTable();
+}
+
+// ── Categories Management ──
+function renderCategoriesSection() {
+  const cats = loadCategories();
+  const tours = loadTours();
+  const container = document.getElementById('categories-container');
+  let html = '';
+  Object.entries(cats).forEach(([catId, cat]) => {
+    html += '<div class="card"><div class="card-header"><h3>'+cat.name+'</h3><span style="font-size:12px;color:#999;">'+cat.tours.length+'条线路</span></div><div class="card-body" id="cat-list-'+catId+'" style="min-height:80px;" ondragover="event.preventDefault()" ondrop="dropTour(event,\''+catId+'\')">';
+    cat.tours.forEach(tourId => {
+      const t = tours[tourId];
+      if(!t) return;
+      html += '<div class="timeline-edit-item" style="display:flex;align-items:center;gap:8px;padding:8px 10px;margin-bottom:6px;cursor:move;background:#f9fbfd;border-radius:8px;border:1px solid #eee;" draggable="true" ondragstart="dragTour(event,\''+tourId+'\','+JSON.stringify(catId).replace(/"/g,'&quot;')+')">';
+      html += '<span style="color:#999;font-size:12px;">⠿</span>';
+      html += '<span style="flex:1;font-size:13px;font-weight:600;">'+t.title+'</span>';
+      html += '<button class="btn btn-outline btn-sm" style="padding:3px 10px;font-size:11px;" onclick="removeTourFromCategory(\''+catId+'\',\''+tourId+'\')">移出</button>';
+      html += '</div>';
+    });
+    if(cat.tours.length === 0) {
+      html += '<div style="text-align:center;color:#ccc;padding:20px;font-size:13px;">拖入线路到此处</div>';
+    }
+    html += '<div style="margin-top:8px;display:flex;gap:6px;">';
+    html += '<button class="btn btn-outline btn-sm" style="font-size:11px;" onclick="renameCategory(\''+catId+'\')">重命名</button>';
+    if(Object.keys(cats).length > 1) {
+      html += '<button class="btn btn-danger btn-sm" style="font-size:11px;" onclick="deleteCategory(\''+catId+'\')">删除分类</button>';
+    }
+    html += '</div></div></div>';
+  });
+  container.innerHTML = html;
+}
+
+function addCategory() {
+  const name = document.getElementById('new-cat-name').value.trim();
+  if(!name) { alert('请输入分类名称'); return; }
+  const cats = loadCategories();
+  const id = 'cat_' + Date.now();
+  cats[id] = { name: name, tours: [] };
+  saveCategories(cats);
+  document.getElementById('new-cat-name').value = '';
+  renderCategoriesSection();
+}
+
+function deleteCategory(catId) {
+  if(!confirm('确定删除该分类吗？其中的线路不会被删除。')) return;
+  const cats = loadCategories();
+  delete cats[catId];
+  saveCategories(cats);
+  renderCategoriesSection();
+}
+
+function renameCategory(catId) {
+  const cats = loadCategories();
+  const newName = prompt('请输入新的分类名称', cats[catId].name);
+  if(!newName || !newName.trim()) return;
+  cats[catId].name = newName.trim();
+  saveCategories(cats);
+  renderCategoriesSection();
+}
+
+function dragTour(e, tourId, fromCatId) {
+  e.dataTransfer.setData('text/plain', JSON.stringify({tourId: tourId, fromCat: fromCatId}));
+}
+
+function dropTour(e, toCatId) {
+  e.preventDefault();
+  try {
+    const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+    const cats = loadCategories();
+    // 从原分类移除
+    if(cats[data.fromCat]) {
+      cats[data.fromCat].tours = cats[data.fromCat].tours.filter(t => t !== data.tourId);
+    }
+    // 添加到目标分类（去重）
+    if(!cats[toCatId].tours.includes(data.tourId)) {
+      cats[toCatId].tours.push(data.tourId);
+    }
+    saveCategories(cats);
+    renderCategoriesSection();
+  } catch(err) {}
+}
+
+function removeTourFromCategory(catId, tourId) {
+  const cats = loadCategories();
+  cats[catId].tours = cats[catId].tours.filter(t => t !== tourId);
+  saveCategories(cats);
+  renderCategoriesSection();
+}
+
+// ── Data Export/Import ──
+function exportData() {
+  const data = {
+    tours: loadTours(),
+    cityData: loadCityData(),
+    cityTours: loadCityTours(),
+    categories: loadCategories(),
+    orders: loadOrders(),
+    exportedAt: new Date().toISOString()
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'moyuan-backup-' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+}
+
+function importData() {
+  const file = document.getElementById('import-file').files[0];
+  if(!file) { alert('请先选择文件'); return; }
+  if(!confirm('导入会覆盖当前所有数据，确定继续吗？')) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      if(data.tours) saveTours(data.tours);
+      if(data.cityData) saveCityData(data.cityData);
+      if(data.cityTours) saveCityTours(data.cityTours);
+      if(data.categories) saveCategories(data.categories);
+      if(data.orders) saveOrders(data.orders);
+      alert('导入成功！');
+      renderDashboard();
+    } catch(err) {
+      alert('文件格式错误：' + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+function clearAllOrders() {
+  if(!confirm('确定清空所有订单吗？此操作不可恢复！')) return;
+  if(!confirm('再次确认：真的要删除所有订单数据吗？')) return;
+  saveOrders([]);
+  renderDashboard();
+  renderOrdersTable();
+}
+
+// ── Init ──
+renderDashboard();
+</script>
+</body>
+</html>
