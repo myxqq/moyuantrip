@@ -1370,9 +1370,15 @@ function removeTourFromCategory(catId, tourId) {
 
 // ── Data Export/Import ──
 // ── 导出 tours.json 给首页使用 ──
+let GITHUB_TOKEN = localStorage.getItem('moyuanGithubToken') || '';
+let GITHUB_USER = 'myxqq';
+let GITHUB_REPO = 'moyuantrip';
+
 function exportToursJson() {
   const t = JSON.parse(localStorage.getItem('moyuanTours') || 'null') || defaultTours;
   const json = JSON.stringify(t, null, 2);
+
+  // 本地下载一份
   const blob = new Blob([json], {type:'application/json'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -1380,7 +1386,51 @@ function exportToursJson() {
   a.download = 'tours.json';
   a.click();
   URL.revokeObjectURL(url);
-  showToast('tours.json 已下载，发送给管理员上传到 GitHub');
+
+  // 自动上传到 GitHub
+  if(!GITHUB_TOKEN) {
+    GITHUB_TOKEN = prompt('请输入 GitHub 令牌（一次性输入后自动保存）');
+    if(GITHUB_TOKEN) localStorage.setItem('moyuanGithubToken', GITHUB_TOKEN);
+  }
+  if(!GITHUB_TOKEN) { showToast('未输入令牌，仅下载了文件'); return; }
+
+  showToast('正在发布到首页...');
+  publishToGithub(json);
+}
+
+function publishToGithub(jsonContent) {
+  const encoded = btoa(unescape(encodeURIComponent(jsonContent)));
+  // 先获取当前文件的 SHA（更新需要）
+  fetch('https://api.github.com/repos/' + GITHUB_USER + '/' + GITHUB_REPO + '/contents/tours.json', {
+    headers: { 'Authorization': 'token ' + GITHUB_TOKEN }
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    const sha = data.sha || '';
+    return fetch('https://api.github.com/repos/' + GITHUB_USER + '/' + GITHUB_REPO + '/contents/tours.json', {
+      method: 'PUT',
+      headers: {
+        'Authorization': 'token ' + GITHUB_TOKEN,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        message: '更新线路数据 ' + new Date().toLocaleString(),
+        content: encoded,
+        sha: sha
+      })
+    });
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(result) {
+    if(result.content) {
+      showToast('发布成功！首页约1-2分钟后更新');
+    } else {
+      showToast('发布失败：' + (result.message || '未知错误'));
+    }
+  })
+  .catch(function(e) {
+    showToast('网络错误：' + e.message);
+  });
 }
 
 function exportData() {
