@@ -1458,14 +1458,14 @@ function submitBooking() {
 
   // 跳转到金数据登记表，预填信息
   var jinshujuUrl = 'https://jsj.top/f/mAf8eh?' + new URLSearchParams({
-    'field_1': t.title.split('·')[0].trim(),
-    'field_2': String(t.price),
-    'field_3': String(total),
-    'field_4': date,
-    'field_5': String(peopleCount),
-    'field_6': name,
-    'field_7': phone,
-    'field_8': document.getElementById('f-note').value.trim()
+    '线路名称': t.title.split('·')[0].trim(),
+    '单价': String(t.price),
+    '总金额': String(total),
+    '出发日期': date,
+    '人数': String(peopleCount),
+    '姓名': name,
+    '手机号': phone,
+    '特殊要求': document.getElementById('f-note').value.trim()
   }).toString();
   setTimeout(function() {
     window.open(jinshujuUrl, '_blank');
