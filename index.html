@@ -1457,16 +1457,17 @@ function submitBooking() {
   showPage('success');
 
   // 跳转到金数据登记表，预填信息
-  var jinshujuUrl = 'https://jsj.top/f/mAf8eh?' + new URLSearchParams({
-    '线路名称': t.title.split('·')[0].trim(),
-    '单价': String(t.price),
-    '总金额': String(total),
-    '出发日期': date,
-    '人数': String(peopleCount),
-    '姓名': name,
-    '手机号': phone,
-    '特殊要求': document.getElementById('f-note').value.trim()
-  }).toString();
+  var tourTitle = t.title.split('·')[0].trim();
+  var noteVal = document.getElementById('f-note').value.trim();
+  var jinshujuUrl = 'https://jsj.top/f/mAf8eh'
+    + '?field_1=' + encodeURIComponent(tourTitle)
+    + '&field_2=' + encodeURIComponent(String(t.price))
+    + '&field_3=' + encodeURIComponent(String(total))
+    + '&field_4=' + encodeURIComponent(date)
+    + '&field_5=' + encodeURIComponent(String(peopleCount))
+    + '&field_6=' + encodeURIComponent(name)
+    + '&field_7=' + encodeURIComponent(phone)
+    + '&field_8=' + encodeURIComponent(noteVal);
   setTimeout(function() {
     window.open(jinshujuUrl, '_blank');
   }, 800);
