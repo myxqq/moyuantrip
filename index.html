@@ -1455,22 +1455,6 @@ function submitBooking() {
   document.getElementById('s-success-total').textContent = '¥' + total.toLocaleString();
 
   showPage('success');
-
-  // 跳转到金数据登记表，预填信息
-  var tourTitle = t.title.split('·')[0].trim();
-  var noteVal = document.getElementById('f-note').value.trim();
-  var jinshujuUrl = 'https://jsj.top/f/mAf8eh'
-    + '?field_1=' + encodeURIComponent(tourTitle)
-    + '&field_2=' + encodeURIComponent(String(t.price))
-    + '&field_3=' + encodeURIComponent(String(total))
-    + '&field_4=' + encodeURIComponent(date)
-    + '&field_5=' + encodeURIComponent(String(peopleCount))
-    + '&field_6=' + encodeURIComponent(name)
-    + '&field_7=' + encodeURIComponent(phone)
-    + '&field_8=' + encodeURIComponent(noteVal);
-  setTimeout(function() {
-    window.open(jinshujuUrl, '_blank');
-  }, 800);
 }
 
 // ── City Selector ──
