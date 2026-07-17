@@ -1457,6 +1457,8 @@ function submitBooking() {
       'Prefer': 'return=minimal'
     },
     body: JSON.stringify(order)
+  }).then(function(r) {
+    if(!r.ok) throw new Error('HTTP ' + r.status);
   }).catch(function(e) { console.log('Supabase保存失败:', e); });
 
   // 同时保存到本地（备份）
