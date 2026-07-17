@@ -1455,6 +1455,21 @@ function submitBooking() {
   document.getElementById('s-success-total').textContent = '¥' + total.toLocaleString();
 
   showPage('success');
+
+  // 跳转到金数据登记表，预填信息
+  var jinshujuUrl = 'https://jsj.top/f/mAf8eh?' + new URLSearchParams({
+    'field_1': t.title.split('·')[0].trim(),
+    'field_2': String(t.price),
+    'field_3': String(total),
+    'field_4': date,
+    'field_5': String(peopleCount),
+    'field_6': name,
+    'field_7': phone,
+    'field_8': document.getElementById('f-note').value.trim()
+  }).toString();
+  setTimeout(function() {
+    window.open(jinshujuUrl, '_blank');
+  }, 800);
 }
 
 // ── City Selector ──
