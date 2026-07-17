@@ -987,6 +987,11 @@
 <!-- 重置数据按钮（长按3秒清除缓存） -->
 
 <script>
+// ── Supabase 配置 ──
+const SUPABASE_URL = 'https://xdwxrhgiihosdjldwkwc.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhkd3hyaGdpaWhvc2RqbGR3a3djIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQyNjQ5ODAsImV4cCI6MjA5OTg0MDk4MH0.z7itINc516YXjd25QGWARwpc62Gc-vQza96S0upImgI';
+const SUPABASE_API = SUPABASE_URL + '/rest/v1/orders';
+
 // 从 localStorage 读取数据，如果没有则用默认数据
 const defaultTours = {
   beijing: {
@@ -1427,11 +1432,11 @@ function submitBooking() {
   const total = t.price * peopleCount;
   const orderId = 'MY' + Date.now().toString().slice(-8);
 
-  // Save order to localStorage
+  // 订单数据
   const order = {
-    id: orderId,
-    tourId: currentTour,
-    tourTitle: t.title.split('·')[0].trim(),
+    order_id: orderId,
+    tour_id: currentTour,
+    tour_title: t.title.split('·')[0].trim(),
     date: date,
     people: peopleCount,
     price: t.price,
@@ -1439,11 +1444,24 @@ function submitBooking() {
     name: name,
     phone: phone,
     note: document.getElementById('f-note').value.trim(),
-    status: 'confirmed',
-    createdAt: new Date().toISOString()
+    status: 'confirmed'
   };
+
+  // 保存到 Supabase 云端
+  fetch(SUPABASE_API, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': SUPABASE_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_KEY
+    },
+    body: JSON.stringify(order)
+  }).catch(function(e) { console.log('Supabase保存失败:', e); });
+
+  // 同时保存到本地
+  const localOrder = Object.assign({}, order, { id: orderId, createdAt: new Date().toISOString() });
   const orders = JSON.parse(localStorage.getItem('moyuanOrders') || '[]');
-  orders.unshift(order);
+  orders.unshift(localOrder);
   localStorage.setItem('moyuanOrders', JSON.stringify(orders));
 
   document.getElementById('order-id-display').textContent = orderId;
