@@ -526,11 +526,6 @@ tr:hover { background: #f9fbfd; }
 </div>
 
 <script>
-// ── Supabase 配置 ──
-const SUPABASE_URL = 'https://xdwxrhgiihosdjldwkwc.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_1iaNrsJ5KzJiHFvMzwm31g_PNUAZr6r';
-const SUPABASE_API = SUPABASE_URL + '/rest/v1/orders';
-
 // ── Default Data ──
 const defaultTours = {
   beijing: {
@@ -723,40 +718,6 @@ function loadOrders() {
   return d ? JSON.parse(d) : [];
 }
 function saveOrders(o) { localStorage.setItem('moyuanOrders', JSON.stringify(o)); }
-
-// 从 Supabase 同步订单到本地
-function syncOrdersFromSupabase(callback) {
-  fetch(SUPABASE_API + '?order=created_at.desc', {
-    headers: {
-      'apikey': SUPABASE_KEY,
-      'Authorization': 'Bearer ' + SUPABASE_KEY
-    }
-  })
-  .then(function(r) { return r.json(); })
-  .then(function(data) {
-    if(data && data.length > 0) {
-      var mapped = data.map(function(o) {
-        return {
-          id: o.order_id,
-          tourId: o.tour_id,
-          tourTitle: o.tour_title,
-          date: o.date,
-          people: o.people,
-          price: o.price,
-          total: o.total,
-          name: o.name,
-          phone: o.phone,
-          note: o.note,
-          status: o.status,
-          createdAt: o.created_at
-        };
-      });
-      saveOrders(mapped);
-    }
-    if(callback) callback();
-  })
-  .catch(function() { if(callback) callback(); });
-}
 
 // ── Section Switching ──
 // ── Contact Settings ──
@@ -1514,9 +1475,7 @@ function clearAllOrders() {
 }
 
 // ── Init ──
-syncOrdersFromSupabase(function() {
-  renderDashboard();
-});
+renderDashboard();
 </script>
 </body>
 </html>
